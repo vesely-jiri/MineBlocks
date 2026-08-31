@@ -8,7 +8,10 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,15 +27,45 @@ public class BlockRegistry {
     /** Permission nodes this registry published, so it only ever removes its own. */
     private final Set<String> ownedPermissions = ConcurrentHashMap.newKeySet();
 
-    public void changeId(MineBlock mineBlock, String id) {
-        BlocksConfig config = mineBlock.getPlugin().getConfiguration().getBlocksConfig();
+    /**
+     * Renames a block, moving its config entry and its saved progress with it.
+     *
+     * @return false when the id is already taken, leaving the block untouched
+     */
+    public boolean changeId(MineBlock mineBlock, String id) {
+        if (id == null || id.isBlank()) return false;
+        MineBlock existing = blockMap.get(id);
+        // Overwriting the entry would strand the other block: still rendered, no longer reachable.
+        if (existing != null && existing != mineBlock) return false;
+        if (id.equals(mineBlock.getId())) return true;
+
+        MineBlocksPlugin plugin = mineBlock.getPlugin();
+        BlocksConfig config = plugin.getConfiguration().getBlocksConfig();
+        File oldStorage = MineBlock.getStoragePath(plugin, mineBlock);
+
         config.removeBlock(mineBlock.getId());
         mineBlock.hide();
         blockMap.remove(mineBlock.getId(), mineBlock);
         mineBlock.setId(id);
         blockMap.put(mineBlock.getId(), mineBlock);
         mineBlock.show();
-        mineBlock.getPlugin().saveConfiguration();
+
+        // Progress is stored in a file named after the id, so it has to follow the rename.
+        File newStorage = MineBlock.getStoragePath(plugin, mineBlock);
+        if (oldStorage.exists()) {
+            try {
+                Files.move(oldStorage.toPath(), newStorage.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                plugin.logWarn("Could not move saved progress of renamed block to " + newStorage.getName()
+                        + ": " + e.getMessage());
+            }
+        }
+
+        // Without this the block is only removed from the config and never written back, so it
+        // disappears on the next reload.
+        config.setBlock(mineBlock);
+        plugin.saveConfiguration();
+        return true;
     }
 
     public void changeLocation(MineBlock mineBlock, Location location) {

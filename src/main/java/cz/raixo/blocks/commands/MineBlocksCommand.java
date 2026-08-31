@@ -307,10 +307,10 @@ public final class MineBlocksCommand {
     }
 
     private void saveBlock(MineBlock block) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            plugin.getConfiguration().getBlocksConfig().setBlock(block);
-            plugin.saveConfiguration();
-        });
+        // Editing the config happens here on the command thread; only the file write is deferred.
+        // Doing the edit asynchronously raced with gameplay writing to the same configuration.
+        plugin.getConfiguration().getBlocksConfig().setBlock(block);
+        plugin.saveConfiguration();
     }
 
     /** Prints the hologram lines with click-to-edit shortcuts. Also used by the GUI editor. */

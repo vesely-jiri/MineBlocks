@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -117,8 +119,30 @@ public class MineBlocksPlugin extends JavaPlugin {
         return super.getFile();
     }
 
+    /**
+     * Persists the configuration without blocking the server thread.
+     *
+     * <p>Only the file write is asynchronous. Serialising the configuration happens on the main
+     * thread first, because {@link YamlConfiguration} is not thread safe and the previous version
+     * walked it on a worker thread while gameplay could still be editing it - two edits in quick
+     * succession could write a corrupted config.yml.</p>
+     */
     public void saveConfiguration() {
-        getServer().getScheduler().runTaskAsynchronously(this, this::saveConfig);
+        if (!getServer().isPrimaryThread()) {
+            getServer().getScheduler().runTask(this, this::saveConfiguration);
+            return;
+        }
+        String snapshot = getConfig().saveToString();
+        getServer().getScheduler().runTaskAsynchronously(this, () -> writeConfig(snapshot));
+    }
+
+    /** Writes serialised config content, one writer at a time. */
+    private synchronized void writeConfig(String content) {
+        try {
+            Files.writeString(getConfigFile().toPath(), content, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            logWarn("Could not save config.yml: " + e.getMessage());
+        }
     }
 
     public void closeAllGuis() {
@@ -149,11 +173,7 @@ public class MineBlocksPlugin extends JavaPlugin {
     @Override
     public void saveConfig() {
         if (config == null) return;
-        try {
-            config.save(getConfigFile());
-        } catch (IOException e) {
-            logWarn("Could not save config.yml: " + e.getMessage());
-        }
+        writeConfig(config.saveToString());
     }
 
     private File getConfigFile() {

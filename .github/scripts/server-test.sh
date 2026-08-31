@@ -92,6 +92,8 @@ log_step "Starting the server"
     echo "mb sethealth stone 5"
     echo "mb reset stone"
     echo "mb hologram show stone"
+    # Edits the config through the plugin, so the write path is exercised too.
+    echo "mb hologram addline stone &7CI_PERSISTED_LINE"
     sleep 3
 
     # With nobody online the world unloads right after startup, and every read of it comes back
@@ -160,5 +162,21 @@ refuse 'Unhandled exception|java\.lang\.[A-Za-z]*(Exception|Error)' 'no exceptio
 refuse 'Unknown or incomplete command|Incorrect argument for command' 'every console command was accepted'
 # A silent "not loaded" is how this test previously fooled itself into reading an empty world.
 refuse 'That position is not loaded' 'every probe read a loaded chunk'
+refuse 'Could not save config' 'the configuration was written'
+
+log_step "Checking what the plugin wrote back to disk"
+
+WRITTEN_CONFIG="plugins/MineBlocks/config.yml"
+[ -f "$WRITTEN_CONFIG" ] || fail "the plugin never wrote its configuration"
+
+grep -qF 'CI_PERSISTED_LINE' "$WRITTEN_CONFIG" \
+    || fail "an edit made through the plugin was not persisted to config.yml"
+echo "  ok: an edit made in game survives to config.yml"
+
+# Bukkit keeps comments when it rewrites a configuration. If that ever stops being true, every
+# admin loses the documentation in their own config the first time they touch the editor.
+grep -q '^# MineBlocks' "$WRITTEN_CONFIG" \
+    || fail "rewriting the config stripped its comments"
+echo "  ok: rewriting the config keeps its comments"
 
 log_step "Server test passed"

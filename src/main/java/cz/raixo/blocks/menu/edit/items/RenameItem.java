@@ -45,8 +45,10 @@ public class RenameItem extends BlockMenuItem {
                     if (s.contains(" ")) {
                         Colors.send(player, "#DF2E38Block name can't contain spaces!");
                         getMenu().open(player);
+                    } else if (!block.getPlugin().getBlockRegistry().changeId(block, s)) {
+                        Colors.send(player, "#DF2E38A block named " + s + " already exists!");
+                        getMenu().open(player);
                     } else {
-                        block.getPlugin().getBlockRegistry().changeId(block, s);
                         new EditMenu(block).open(player);
                     }
                 }));
