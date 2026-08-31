@@ -88,6 +88,23 @@ public class BlockRewards {
     }
 
     /**
+     * Runs a reward command and complains loudly when the server did not accept it.
+     *
+     * <p>Without this a typo or a missing permission plugin fails in silence: the player still
+     * reads "you unlocked gold.nexus" while nothing was granted.</p>
+     */
+    private void dispatchCommand(String command) {
+        if (command == null || command.isBlank()) return;
+        CommandSender sender = block.getPlugin().getServer().getConsoleSender();
+        if (!block.getPlugin().getServer().dispatchCommand(sender, command)) {
+            block.getPlugin().logWarn(
+                    "Reward command of block " + block.getId() + " was rejected by the server: /" + command
+                            + " - is the plugin that owns this command installed?"
+            );
+        }
+    }
+
+    /**
      * Tells the player what they got. Most rewards stay silent and let the granting plugin speak;
      * the ones that unlock access to the next block announce themselves.
      */
@@ -100,12 +117,6 @@ public class BlockRewards {
         }
         Player online = block.getPlugin().getServer().getPlayer(player.getUuid());
         if (online != null) block.message(online, message);
-    }
-
-    private void dispatchCommand(String command) {
-        if (command == null || command.isBlank()) return;
-        CommandSender sender = block.getPlugin().getServer().getConsoleSender();
-        block.getPlugin().getServer().dispatchCommand(sender, command);
     }
 
     private void storeForLater(OfflineRewardsStorage storage, PlayerData player, String command) {

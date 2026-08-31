@@ -1,0 +1,43 @@
+# The rewards section exactly as the original MineBlocks plugin wrote it. Kept verbatim as a
+# regression fixture: configs carried over from a server running the old plugin must keep loading.
+rewards:
+  reward_name:
+    type: top
+    place: 1
+    commands:
+      - "10;give %player% diamond"
+      - "100;give %player% iron_ingot"
+  reward1:
+    type: top
+    place: 1-3
+    commands:
+      - "10;give %player% diamond"
+      - "100;give %player% iron_ingot"
+  reward2:
+    type: break
+    interval: 5
+    commands:
+      - "100;give %player% iron_nugget"
+  reward3:
+    type: break
+    condition: less than 5
+    commands:
+      - "100;give %player% iron_nugget"
+  reward4:
+    type: break
+    condition: last
+    commands:
+      - "100;give %player% iron_nugget"
+  reward5:
+    type: break_count
+    from: 10
+    to: 50
+    commands:
+      - "100;give %player% iron_nugget"
+  reward6:
+    type: break
+    interval: 3
+    mode: all
+    commands:
+      - "give %player% stone"
+      - "give %player% dirt"
