@@ -45,11 +45,38 @@ The shipped configuration defines five tiers. Each is gated by its own permissio
 next one through a reward:
 
 ```
-stone.nexus -> gold.nexus -> color.nexus -> ore.nexus -> mithcoin.nexus
+mineblocks.blocks.stone -> .gold -> .color -> .ore -> .mithcoin
 ```
 
-Give your default group `stone.nexus`; the blocks hand out the rest. Permissions are granted by a
-plain console command, so any permission plugin works — the defaults use LuckPerms syntax.
+Give your default group `mineblocks.blocks.stone`; the blocks hand out the rest. Permissions are
+granted by a plain console command, so any permission plugin works — the defaults use LuckPerms
+syntax.
+
+```
+lp group default permission set mineblocks.blocks.stone true
+```
+
+### Permission naming
+
+A block's `permission` is free-form — any node works. The shipped blocks follow the plugin's own
+namespace so the nodes are recognisable and can be granted as a set:
+
+```
+mineblocks.blocks.<block id>
+```
+
+That means `mineblocks.blocks.*` unlocks every block at once, which is handy for staff ranks and
+for testing. Every node a block gates on is registered with the server at load, so it tab-completes
+in LuckPerms instead of having to be typed from memory.
+
+If you are coming from a setup that used bare `<tier>.nexus` nodes, migrate the grants once:
+
+```
+lp group default permission set mineblocks.blocks.stone true
+lp bulk update users permissions set mineblocks.blocks.gold true where permission == gold.nexus
+```
+
+Repeat the second line for each tier, then delete the old nodes.
 
 ## Configuration
 
@@ -65,7 +92,7 @@ blocks:
     location: { world: world, x: 10, y: 100, z: 0 }
     type: GOLD_BLOCK
     health: 400
-    permission: "gold.nexus"        # empty means everyone may mine it
+    permission: "mineblocks.blocks.gold"   # empty means everyone may mine it
     break-limit: 20                 # minimum ms between two counted hits
     timeout:
       time: 600                     # cooldown in seconds
@@ -120,9 +147,9 @@ Material entries are exact material names or regular expressions. Later entries 
         type: break
         interval: 150
         commands:
-          - command: "lp user %player% permission set color.nexus true"
+          - command: "lp user %player% permission set mineblocks.blocks.color true"
             chance: 100
-            message: "&a[Nexus] &7You unlocked &dcolor.nexus&7!"
+            message: "&a[Nexus] &7You unlocked the &dColor Nexus&7!"
             broadcast: false
 
       top_1:
@@ -169,7 +196,7 @@ supported everywhere.
 
 ## Commands
 
-All under `/mineblocks` (alias `/mb`), permission `mb.admin`:
+All under `/mineblocks` (alias `/mb`), permission `mineblocks.admin`:
 
 | command | what it does |
 |---|---|
@@ -185,7 +212,8 @@ All under `/mineblocks` (alias `/mb`), permission `mb.admin`:
 | `/mb hologram show\|addline\|removeline\|setline` | edit hologram lines |
 | `/mb version` | show the installed version |
 
-Each subcommand also has its own permission, `mb.admin.<subcommand>`.
+Each subcommand also has its own permission, `mineblocks.admin.<subcommand>`. The old
+`mb.admin` node is kept as an alias, so setups that already granted it keep working.
 
 ## Licence
 

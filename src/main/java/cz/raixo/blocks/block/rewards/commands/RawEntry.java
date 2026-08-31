@@ -13,7 +13,7 @@ import java.util.Map;
  * <pre>
  * commands:
  *   - "100;give %player% iron_nugget"          # legacy: weight;command
- *   - command: "lp user %player% permission set gold.nexus true"
+ *   - command: "lp user %player% permission set mineblocks.blocks.gold true"
  *     chance: 5
  *     message: "&amp;aYou unlocked the gold block!"
  *     broadcast: true

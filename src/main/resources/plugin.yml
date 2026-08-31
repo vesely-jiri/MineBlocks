@@ -9,44 +9,54 @@ softdepend:
   - PlaceholderAPI
   - LuckPerms
 
+# Access to a block is granted by whatever node its `permission` names in config.yml. The shipped
+# blocks follow `mineblocks.blocks.<block id>`; those nodes are registered at runtime, because the
+# blocks an admin defines are not known here.
 permissions:
-  mb.admin:
+  mineblocks.admin:
     description: Full access to every MineBlocks command.
     default: op
     children:
-      mb.admin.reload: true
-      mb.admin.list: true
-      mb.admin.teleport: true
-      mb.admin.reset: true
-      mb.admin.sethealth: true
-      mb.admin.edit: true
-      mb.admin.create: true
-      mb.admin.remove: true
-      mb.admin.hologram: true
-  mb.admin.reload:
+      mineblocks.admin.reload: true
+      mineblocks.admin.list: true
+      mineblocks.admin.teleport: true
+      mineblocks.admin.reset: true
+      mineblocks.admin.sethealth: true
+      mineblocks.admin.edit: true
+      mineblocks.admin.create: true
+      mineblocks.admin.remove: true
+      mineblocks.admin.hologram: true
+  mineblocks.admin.reload:
     description: Reload the configuration.
     default: false
-  mb.admin.list:
+  mineblocks.admin.list:
     description: List every block.
     default: false
-  mb.admin.teleport:
+  mineblocks.admin.teleport:
     description: Teleport to a block.
     default: false
-  mb.admin.reset:
+  mineblocks.admin.reset:
     description: Reset a block.
     default: false
-  mb.admin.sethealth:
+  mineblocks.admin.sethealth:
     description: Change the remaining health of a block.
     default: false
-  mb.admin.edit:
+  mineblocks.admin.edit:
     description: Open the block editor.
     default: false
-  mb.admin.create:
+  mineblocks.admin.create:
     description: Create a block.
     default: false
-  mb.admin.remove:
+  mineblocks.admin.remove:
     description: Delete a block.
     default: false
-  mb.admin.hologram:
+  mineblocks.admin.hologram:
     description: Edit hologram lines.
     default: false
+
+  # Kept so setups that already granted the old node keep working.
+  mb.admin:
+    description: Deprecated alias of mineblocks.admin.
+    default: false
+    children:
+      mineblocks.admin: true

@@ -6,10 +6,14 @@
 # is unmineable until the cooldown runs out.
 #
 # The blocks below form the "nexus" ladder: mining a block eventually unlocks the permission for
-# the next one. Give your default group `stone.nexus` so everyone can start, the rest is handed
-# out by the blocks themselves.
+# the next one. Give your default group `mineblocks.blocks.stone` so everyone can start, the rest
+# is handed out by the blocks themselves.
 #
-#   stone.nexus -> gold.nexus -> color.nexus -> ore.nexus -> mithcoin.nexus
+#   mineblocks.blocks.stone -> .gold -> .color -> .ore -> .mithcoin
+#
+# The permission of a block is free-form - this is just the convention the shipped blocks follow:
+# `mineblocks.blocks.<block id>`, so every node the plugin gates on is recognisable as its own and
+# a wildcard like `mineblocks.blocks.*` grants the whole set.
 #
 # The permission rewards below use LuckPerms commands. Swap them for your permission plugin's
 # syntax if you use something else - they are plain console commands.
@@ -51,7 +55,7 @@ options:
 blocks:
 
   # -------------------------------------------------------------------------------------------
-  # Tier 1 - open to everyone, unlocks the gold nexus
+  # Tier 1 - the entry block, give its permission to your default group
   # -------------------------------------------------------------------------------------------
   stone:
     name: "&7Stone Nexus"
@@ -63,7 +67,7 @@ blocks:
       z: 0
     type: STONE
     health: 250
-    permission: "stone.nexus"
+    permission: "mineblocks.blocks.stone"
     break-limit: 20
     hologram:
       offset:
@@ -115,9 +119,9 @@ blocks:
         interval: 100
         mode: random
         commands:
-          - command: "lp user %player% permission set gold.nexus true"
+          - command: "lp user %player% permission set mineblocks.blocks.gold true"
             chance: 100
-            message: "&a[Nexus] &7You unlocked &6gold.nexus&7! The Gold Nexus is now open to you."
+            message: "&a[Nexus] &7You unlocked the &6Gold Nexus&7! Go mine it."
             broadcast: false
       top_1:
         type: top
@@ -128,7 +132,7 @@ blocks:
             message: "&a[Nexus] &7You finished &f1st &7on %name%!"
 
   # -------------------------------------------------------------------------------------------
-  # Tier 2 - needs gold.nexus, unlocks the color nexus
+  # Tier 2 - needs mineblocks.blocks.gold, unlocks the color nexus
   # -------------------------------------------------------------------------------------------
   gold:
     name: "&6Gold Nexus"
@@ -140,7 +144,7 @@ blocks:
       z: 0
     type: GOLD_BLOCK
     health: 400
-    permission: "gold.nexus"
+    permission: "mineblocks.blocks.gold"
     break-limit: 20
     hologram:
       offset:
@@ -191,9 +195,9 @@ blocks:
         interval: 150
         mode: random
         commands:
-          - command: "lp user %player% permission set color.nexus true"
+          - command: "lp user %player% permission set mineblocks.blocks.color true"
             chance: 100
-            message: "&a[Nexus] &7You unlocked &dcolor.nexus&7! The Color Nexus is now open to you."
+            message: "&a[Nexus] &7You unlocked the &dColor Nexus&7! Go mine it."
             broadcast: false
       top_1:
         type: top
@@ -204,7 +208,7 @@ blocks:
             message: "&a[Nexus] &7You finished &f1st &7on %name%!"
 
   # -------------------------------------------------------------------------------------------
-  # Tier 3 - needs color.nexus, unlocks the ore nexus
+  # Tier 3 - needs mineblocks.blocks.color, unlocks the ore nexus
   # -------------------------------------------------------------------------------------------
   color:
     name: "&dColor Nexus"
@@ -216,7 +220,7 @@ blocks:
       z: 0
     type: PINK_GLAZED_TERRACOTTA
     health: 600
-    permission: "color.nexus"
+    permission: "mineblocks.blocks.color"
     break-limit: 20
     hologram:
       offset:
@@ -267,9 +271,9 @@ blocks:
         interval: 200
         mode: random
         commands:
-          - command: "lp user %player% permission set ore.nexus true"
+          - command: "lp user %player% permission set mineblocks.blocks.ore true"
             chance: 100
-            message: "&a[Nexus] &7You unlocked &bore.nexus&7! The Ore Nexus is now open to you."
+            message: "&a[Nexus] &7You unlocked the &bOre Nexus&7! Go mine it."
             broadcast: false
       top_1:
         type: top
@@ -280,7 +284,7 @@ blocks:
             message: "&a[Nexus] &7You finished &f1st &7on %name%!"
 
   # -------------------------------------------------------------------------------------------
-  # Tier 4 - needs ore.nexus, unlocks the mithcoin nexus
+  # Tier 4 - needs mineblocks.blocks.ore, unlocks the mithcoin nexus
   # -------------------------------------------------------------------------------------------
   ore:
     name: "&bOre Nexus"
@@ -292,7 +296,7 @@ blocks:
       z: 0
     type: DEEPSLATE_DIAMOND_ORE
     health: 900
-    permission: "ore.nexus"
+    permission: "mineblocks.blocks.ore"
     break-limit: 20
     hologram:
       offset:
@@ -348,9 +352,9 @@ blocks:
         interval: 300
         mode: random
         commands:
-          - command: "lp user %player% permission set mithcoin.nexus true"
+          - command: "lp user %player% permission set mineblocks.blocks.mithcoin true"
             chance: 100
-            message: "&a[Nexus] &7You unlocked &5mithcoin.nexus&7! The final nexus awaits."
+            message: "&a[Nexus] &7%player% unlocked the &5Mithcoin Nexus&7! The final nexus awaits."
             broadcast: true
       top_1:
         type: top
@@ -361,7 +365,7 @@ blocks:
             message: "&a[Nexus] &7You finished &f1st &7on %name%!"
 
   # -------------------------------------------------------------------------------------------
-  # Tier 5 - needs mithcoin.nexus, the end of the ladder
+  # Tier 5 - needs mineblocks.blocks.mithcoin, the end of the ladder
   # -------------------------------------------------------------------------------------------
   mithcoin:
     name: "&5Mithcoin Nexus"
@@ -373,7 +377,7 @@ blocks:
       z: 0
     type: CRYING_OBSIDIAN
     health: 1500
-    permission: "mithcoin.nexus"
+    permission: "mineblocks.blocks.mithcoin"
     break-limit: 20
     hologram:
       offset:

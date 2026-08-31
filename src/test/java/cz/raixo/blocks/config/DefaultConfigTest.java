@@ -23,6 +23,9 @@ class DefaultConfigTest {
     /** The nexus ladder, in order. Each tier unlocks the next one. */
     private static final List<String> TIERS = List.of("stone", "gold", "color", "ore", "mithcoin");
 
+    /** Block permissions live under the plugin's own namespace, keyed by block id. */
+    private static final String PERMISSION_PREFIX = "mineblocks.blocks.";
+
     private static YamlConfiguration config;
 
     @BeforeAll
@@ -92,14 +95,24 @@ class DefaultConfigTest {
         }
     }
 
-    @Test
-    void eachTierIsGatedByItsOwnNexusPermissionAndUnlocksTheNext() {
-        for (int i = 0; i < TIERS.size(); i++) {
-            String id = TIERS.get(i);
-            assertEquals(id + ".nexus", block(id).getString("permission"), id + " is gated by the wrong permission");
+    /** The convention every gating node follows, so a wildcard can grant the whole set. */
+    private static String permissionOf(String id) {
+        return PERMISSION_PREFIX + id;
+    }
 
-            if (i + 1 >= TIERS.size()) continue;
-            String next = TIERS.get(i + 1) + ".nexus";
+    @Test
+    void everyBlockPermissionFollowsThePluginNamespace() {
+        for (String id : TIERS) {
+            String permission = block(id).getString("permission");
+            assertEquals(permissionOf(id), permission, id + " is gated by the wrong permission");
+        }
+    }
+
+    @Test
+    void eachTierUnlocksTheNextOne() {
+        for (int i = 0; i + 1 < TIERS.size(); i++) {
+            String id = TIERS.get(i);
+            String next = permissionOf(TIERS.get(i + 1));
             assertTrue(rewardCommandsOf(id).contains(next),
                     id + " never hands out " + next + ", the ladder is broken");
         }
@@ -114,9 +127,25 @@ class DefaultConfigTest {
                     .map(rewards::getConfigurationSection)
                     .filter(Objects::nonNull)
                     .flatMap(reward -> reward.getMapList("commands").stream())
-                    .filter(entry -> String.valueOf(entry.get("command")).contains(".nexus"))
+                    .filter(entry -> String.valueOf(entry.get("command")).contains(PERMISSION_PREFIX))
                     .anyMatch(entry -> entry.get("message") != null);
             assertTrue(announced, id + " unlocks the next block silently");
+        }
+    }
+
+    @Test
+    void theUnlockMessageNamesTheBlockRatherThanThePermissionNode() {
+        // Players should read "you unlocked the Gold Nexus", not a permission node.
+        for (String id : TIERS) {
+            ConfigurationSection rewards = Objects.requireNonNull(block(id).getConfigurationSection("rewards"));
+            rewards.getKeys(false).stream()
+                    .map(rewards::getConfigurationSection)
+                    .filter(Objects::nonNull)
+                    .flatMap(reward -> reward.getMapList("commands").stream())
+                    .map(entry -> String.valueOf(entry.get("message")))
+                    .filter(message -> !"null".equals(message))
+                    .forEach(message -> assertFalse(message.contains(PERMISSION_PREFIX),
+                            id + " shows a raw permission node to the player: " + message));
         }
     }
 

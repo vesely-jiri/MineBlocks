@@ -91,7 +91,7 @@ public class BlockRewards {
      * Runs a reward command and complains loudly when the server did not accept it.
      *
      * <p>Without this a typo or a missing permission plugin fails in silence: the player still
-     * reads "you unlocked gold.nexus" while nothing was granted.</p>
+     * reads "you unlocked the Gold Nexus" while nothing was granted.</p>
      */
     private void dispatchCommand(String command) {
         if (command == null || command.isBlank()) return;
