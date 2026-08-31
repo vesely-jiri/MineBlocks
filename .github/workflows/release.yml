@@ -7,6 +7,10 @@ on:
 permissions:
   contents: write
 
+env:
+  JAVA_VERSION: '25'
+  PAPER_VERSION: '26.2'
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -19,7 +23,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: ${{ env.JAVA_VERSION }}
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -36,8 +40,33 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
+      # Never publish a jar that has not been started on a real server.
+      - name: Boot a Paper server with the plugin
+        run: |
+          chmod +x .github/scripts/server-test.sh
+          .github/scripts/server-test.sh "$PAPER_VERSION" "$(ls build/libs/*.jar | head -1)"
+
+      - name: Upload the server log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: server-log-${{ github.ref_name }}
+          path: run/server.log
+          if-no-files-found: ignore
+
+      # A tag with a suffix (v3.0.0-rc.1) is a test build, not a stable release.
+      - name: Decide the release channel
+        id: channel
+        run: |
+          if [[ "${GITHUB_REF_NAME#v}" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish release
         uses: softprops/action-gh-release@v3
         with:
           files: build/libs/*.jar
           generate_release_notes: true
+          prerelease: ${{ steps.channel.outputs.prerelease }}
