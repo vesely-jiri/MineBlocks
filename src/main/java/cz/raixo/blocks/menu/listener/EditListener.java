@@ -6,8 +6,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class EditListener implements Listener {
+
+    private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
 
     private final MineBlocksPlugin plugin;
     private final Map<UUID, CompletableFuture<String>> chatInputFutures = new ConcurrentHashMap<>();
@@ -32,14 +35,20 @@ public class EditListener implements Listener {
         }
     }
 
+    /**
+     * Captures the next chat line from a player who is editing a value.
+     *
+     * <p>Uses Paper's component based chat event; the legacy {@code AsyncPlayerChatEvent} is
+     * deprecated and no longer sees every message.</p>
+     */
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent e) {
+    public void onChat(AsyncChatEvent e) {
         UUID player = e.getPlayer().getUniqueId();
         CompletableFuture<String> future = chatInputFutures.remove(player);
-        if (future != null && !future.isDone()) {
-            e.setCancelled(true);
-            future.complete(e.getMessage().replace('§', '&'));
-        }
+        if (future == null || future.isDone()) return;
+        e.setCancelled(true);
+        // Back to the '&' notation the config and the editor use everywhere else.
+        future.complete(LEGACY.serialize(e.message()).replace('§', '&'));
     }
 
     public CompletableFuture<String> awaitChatInput(Player player) {

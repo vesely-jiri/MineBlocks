@@ -4,16 +4,22 @@ import cz.raixo.blocks.block.MineBlock;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The period after a block has been mined out, during which it is replaced by {@code typeOverride}
+ * (bedrock by default) and cannot be mined.
+ */
 @Getter
 @Setter
 public class BlockCoolDown {
+
+    /** How often the hologram countdown is refreshed while the cooldown runs, in ticks. */
+    private static final long COUNTDOWN_INTERVAL = 10L;
 
     @Getter(AccessLevel.NONE)
     private final MineBlock block;
@@ -32,36 +38,50 @@ public class BlockCoolDown {
 
     public ActiveCoolDown activate() {
         if (time <= 0) return null;
-        return activate(new Date(System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(time, TimeUnit.SECONDS)));
+        return activate(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(time)));
     }
 
     public ActiveCoolDown activate(Date end) {
-        deactivate();
-        long remaining = end.getTime() - System.currentTimeMillis();
-        if (remaining <= 0) return null;
+        cancel();
+        long remainingMillis = end.getTime() - System.currentTimeMillis();
+        if (remainingMillis <= 0) return null;
         block.getType().setOverride(typeOverride);
-        CompletableFuture<Void> future = new CompletableFuture<>();
         this.active = new ActiveCoolDown(
                 end,
-                future,
-                Bukkit.getScheduler().runTaskLater(block.getPlugin(), this::deactivate, TimeUnit.SECONDS.convert(remaining, TimeUnit.MILLISECONDS) * 20L),
-                Bukkit.getScheduler().runTaskTimer(block.getPlugin(), () -> block.getHologram().update(), 0, 10)
+                new CompletableFuture<>(),
+                block.getPlugin().getServer().getScheduler().runTaskLater(
+                        block.getPlugin(), this::expire, Math.max(1L, remainingMillis / 50L)),
+                block.getPlugin().getServer().getScheduler().runTaskTimer(
+                        block.getPlugin(), () -> block.getHologram().update(), 0L, COUNTDOWN_INTERVAL)
         );
+        block.getHologram().update();
         return active;
     }
 
-    public boolean deactivate() {
+    /**
+     * Ends the cooldown because the timer ran out: the block becomes mineable again and the respawn
+     * message is announced.
+     */
+    public boolean expire() {
+        if (!cancel()) return false;
+        block.broadcast(respawnMessage);
+        return true;
+    }
+
+    /**
+     * Stops the cooldown without announcing anything. Used on reload, teleport and manual resets,
+     * where telling players the block "was restored" would be wrong.
+     */
+    public boolean cancel() {
         if (!isActive()) return false;
         active.getTask().cancel();
         active.getUpdateTask().cancel();
         active.getFuture().complete(null);
-        block.getType().setOverride(null);
-        block.broadcast(respawnMessage);
         this.active = null;
+        block.getType().setOverride(null);
         block.getHologram().update();
         return true;
     }
-
 
     public boolean isActive() {
         return active != null;
@@ -73,4 +93,5 @@ public class BlockCoolDown {
             block.getType().setOverride(typeOverride);
         }
     }
+
 }

@@ -25,7 +25,7 @@ public enum RewardType {
                     name,
                     NumberRange.parse(section.getString("place", "-1"))
                             .orElseThrow((Supplier<Throwable>) () -> new IllegalStateException("Invalid place in top reward named " + name)),
-                    RewardCommands.parse(section.getString("mode"), section.getStringList("commands"))
+                    RewardCommands.parse(section.getString("mode"), rawCommands(section))
             );
         }
 
@@ -58,7 +58,7 @@ public enum RewardType {
                     name,
                     condition
                             .orElseThrow((Supplier<Throwable>) () -> new IllegalStateException("Invalid interval/condition in break reward named " + name)),
-                    RewardCommands.parse(section.getString("mode"), section.getStringList("commands"))
+                    RewardCommands.parse(section.getString("mode"), rawCommands(section))
             );
         }
 
@@ -85,7 +85,7 @@ public enum RewardType {
             return new BreakCountReward(
                     name,
                     new RangeNumber(from, to),
-                    RewardCommands.parse(section.getString("mode"), section.getStringList("commands"))
+                    RewardCommands.parse(section.getString("mode"), rawCommands(section))
             );
         }
 
@@ -110,6 +110,12 @@ public enum RewardType {
 
     public static Optional<RewardType> getByName(String name) {
         return Optional.ofNullable(TYPES.get(name.toUpperCase()));
+    }
+
+
+    private static java.util.List<?> rawCommands(ConfigurationSection section) {
+        java.util.List<?> list = section.getList("commands");
+        return list == null ? java.util.List.of() : list;
     }
 
     public abstract Reward parse(String name, ConfigurationSection section);

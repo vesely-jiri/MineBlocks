@@ -7,7 +7,6 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.util.color.Colors;
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -50,17 +49,17 @@ public class LocationItem extends BlockMenuItem {
     @Override
     public ItemStack render(MineBlock state) {
         return ItemStackBuilder.create(Material.COMPASS)
-                .withName(MineDown.parse("&#205295&&lLocation"))
+                .withName(Colors.itemComponent("&#205295&&lLocation"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Current location: &#2C74B3&" + Optional.ofNullable(state.getLocation())
+                        Colors.itemComponent("&7Current location: &#2C74B3&" + Optional.ofNullable(state.getLocation())
                                 .map(loc ->
                                         Optional.ofNullable(loc.getWorld())
                                                 .map(World::getName).orElse("unknown world") + ", " +
                                                 loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ())
                                 .orElse("&cUnknown location")),
                         Component.empty(),
-                        MineDown.parse("&7Click to change")
+                        Colors.itemComponent("&7Click to change")
                 ).build();
     }
 

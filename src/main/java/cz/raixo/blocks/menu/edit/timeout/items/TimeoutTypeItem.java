@@ -5,7 +5,7 @@ import cz.raixo.blocks.gui.item.click.ItemClickEvent;
 import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -30,18 +30,18 @@ public class TimeoutTypeItem extends BlockMenuItem {
         List<Component> lore = new LinkedList<>();
 
         lore.add(Component.empty());
-        lore.add(MineDown.parse("&7Click on block in your"));
-        lore.add(MineDown.parse("&7inventory to change"));
+        lore.add(Colors.itemComponent("&7Click on block in your"));
+        lore.add(Colors.itemComponent("&7inventory to change"));
 
         Material override = getState().getCoolDown().getTypeOverride();
 
         if (override != null) {
             lore.add(Component.empty());
-            lore.add(MineDown.parse("&7Click to &#DF2E38&remove"));
+            lore.add(Colors.itemComponent("&7Click to &#DF2E38&remove"));
         }
 
         return ItemStackBuilder.create(override == null ? Material.STRUCTURE_VOID : override)
-                .withName(MineDown.parse("&#205295&&lTimeout type"))
+                .withName(Colors.itemComponent("&#205295&&lTimeout type"))
                 .withLore(lore)
                 .build();
     }

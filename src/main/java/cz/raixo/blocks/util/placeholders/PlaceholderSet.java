@@ -9,7 +9,9 @@ import java.util.regex.Pattern;
 
 public class PlaceholderSet {
 
-    public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("%[A-z0-9]*%");
+    // [A-z] also covers the punctuation between 'Z' and 'a', which made unrelated text look like a
+    // placeholder; the character class is spelled out instead.
+    public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("%[A-Za-z0-9_]+%");
 
     private final Map<String, Supplier<String>> placeholders = new HashMap<>();
 

@@ -6,7 +6,7 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.timeout.TimeoutMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -27,12 +27,12 @@ public class TimeoutItem extends BlockMenuItem {
         int timeout = state.getCoolDown().getTime();
         Material type = state.getCoolDown().getTypeOverride();
         return ItemStackBuilder.create(timeout > 0 && type != null ? type : Material.CLOCK)
-                .withName(MineDown.parse("&#205295&&lTimeout"))
+                .withName(Colors.itemComponent("&#205295&&lTimeout"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Timeout: &#2C74B3&" + (timeout > 0 ? timeout + "s" : "&#DF2E38&No")),
+                        Colors.itemComponent("&7Timeout: &#2C74B3&" + (timeout > 0 ? timeout + "s" : "&#DF2E38&No")),
                         Component.empty(),
-                        MineDown.parse("&7Click to edit")
+                        Colors.itemComponent("&7Click to edit")
                 ).build();
     }
 }

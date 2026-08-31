@@ -3,27 +3,28 @@ package cz.raixo.blocks.block.hologram;
 import cz.raixo.blocks.MineBlocksPlugin;
 import cz.raixo.blocks.block.MineBlock;
 import cz.raixo.blocks.block.placeholder.BlockPlaceholderSet;
-import cz.raixo.blocks.integration.models.hologram.Hologram;
+import cz.raixo.blocks.hologram.Hologram;
+import cz.raixo.blocks.hologram.TextDisplayHologram;
+import cz.raixo.blocks.util.color.Colors;
 import cz.raixo.blocks.util.placeholders.PlaceholderSet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Getter
 public class BlockHologram {
 
     @Getter(AccessLevel.NONE)
     private final MineBlock block;
-    private final Hologram hologram;
+    @Getter(AccessLevel.NONE)
+    private final TextDisplayHologram hologram;
     private final HologramOffset offset;
     private final List<String> lines;
     @Getter(AccessLevel.NONE)
@@ -39,7 +40,7 @@ public class BlockHologram {
         this.offset = offset;
         this.lines = new LinkedList<>(lines);
         this.placeholders = new BlockPlaceholderSet(block);
-        this.hologram = block.getPlugin().getIntegrationManager().getHologramProvider().provide("mineblock-" + block.getId(), getLocation());
+        this.hologram = new TextDisplayHologram(block.getPlugin(), "mineblock-" + block.getId(), getLocation());
         this.updateInterval = block.getPlugin().getConfiguration().getOptionsConfig().getUpdateInterval();
     }
 
@@ -55,19 +56,20 @@ public class BlockHologram {
     }
 
     public void updateLines() {
-        hologram.setLines(getLines().stream()
-                .map(line -> Map.entry(line, parseLine(line)))
-                .filter(s -> s.getKey().isBlank() || !hologram.stripColor(s.getValue()).isBlank())
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList()));
+        List<String> rendered = new ArrayList<>(lines.size());
+        for (String line : lines) {
+            String parsed = placeholders.parse(line);
+            // Drop lines that collapse to nothing once placeholders resolve (an inactive cooldown,
+            // an empty top slot), but keep lines that were intentionally left blank as spacing.
+            if (!line.isBlank() && Colors.strip(parsed).isBlank()) continue;
+            rendered.add(parsed);
+        }
+        hologram.setLines(rendered);
     }
 
-    private String parseLine(String line) {
-        return placeholders.parse(line);
-    }
-
-    public List<Component> getAdventurePreview() {
-        return hologram.getPreview();
+    /** Renders the configured lines as components for the in-game editor preview. */
+    public List<Component> getPreview() {
+        return lines.stream().map(Colors::component).toList();
     }
 
     public void updateLocation() {
@@ -98,20 +100,22 @@ public class BlockHologram {
         hologram.delete();
     }
 
-    private synchronized void changeVisibility(boolean b) {
-        if (b) {
-            update();
-            if (updateInterval > 0)
-                if (updateTask == null) updateTask = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (shouldUpdate) {
-                            updateLines();
-                        }
-                    }
-                }
-                        .runTaskTimer(block.getPlugin(), 0, updateInterval);
+    private synchronized void changeVisibility(boolean visible) {
+        if (visible) {
             hologram.setVisible(true);
+            updateLines();
+            if (updateTask == null) {
+                // Doubles as the keep-alive tick: display entities are not persisted, so they have
+                // to be respawned after their chunk cycles.
+                int interval = updateInterval > 0 ? updateInterval : 20;
+                updateTask = block.getPlugin().getServer().getScheduler().runTaskTimer(block.getPlugin(), () -> {
+                    hologram.ensureSpawned();
+                    if (updateInterval > 0 && shouldUpdate) {
+                        shouldUpdate = false;
+                        updateLines();
+                    }
+                }, interval, interval);
+            }
         } else {
             if (updateTask != null) {
                 updateTask.cancel();

@@ -13,7 +13,7 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.rewards.RewardsEditMenu;
 import cz.raixo.blocks.menu.edit.rewards.edit.RewardEditMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -53,7 +53,7 @@ public class RewardItem extends BlockMenuItem {
 
         if (rewards.isEmpty() && slot == 13) {
             return ItemStackBuilder.create(Material.STRUCTURE_VOID)
-                    .withName(MineDown.parse("&#DF2E38&There are no rewards"))
+                    .withName(Colors.itemComponent("&#DF2E38&There are no rewards"))
                     .withItemFlags(ItemFlag.values())
                     .build();
         }
@@ -103,31 +103,31 @@ public class RewardItem extends BlockMenuItem {
                 tagLine = "???";
             }
             List<Component> lore = new LinkedList<>();
-            lore.add(MineDown.parse("&7" + tagLine));
+            lore.add(Colors.itemComponent("&7" + tagLine));
             lore.add(Component.empty());
-            lore.add(MineDown.parse("&7Commands:"));
+            lore.add(Colors.itemComponent("&7Commands:"));
 
             List<? extends RewardEntry> commands = reward.getCommands().asList();
 
             for (RewardEntry entry : commands) {
                 if (entry instanceof RandomCommandEntry) {
                     RandomCommandEntry randomEntry = (RandomCommandEntry) entry;
-                    lore.add(MineDown.parse("&7- &#2C74B3&" + randomEntry.getCommand() + " &7(" + randomEntry.getChance() + ")"));
+                    lore.add(Colors.itemComponent("&7- &#2C74B3&" + randomEntry.getCommand() + " &7(" + randomEntry.getChance() + ")"));
                 } else {
-                    lore.add(MineDown.parse("&7- &#2C74B3&" + entry.getCommand()));
+                    lore.add(Colors.itemComponent("&7- &#2C74B3&" + entry.getCommand()));
                 }
             }
 
             if (commands.isEmpty()) {
-                lore.add(MineDown.parse("&#2C74B3& There are no commands"));
+                lore.add(Colors.itemComponent("&#2C74B3& There are no commands"));
             }
 
             lore.add(Component.empty());
-            lore.add(MineDown.parse("&7Left click to &#DF2E38&delete"));
-            lore.add(MineDown.parse("&7Right click to edit"));
+            lore.add(Colors.itemComponent("&7Left click to &#DF2E38&delete"));
+            lore.add(Colors.itemComponent("&7Right click to edit"));
 
             return ItemStackBuilder.create(head)
-                    .withName(MineDown.parse("&#205295&&l" + name))
+                    .withName(Colors.itemComponent("&#205295&&l" + name))
                     .withLore(lore)
                     .build();
         }

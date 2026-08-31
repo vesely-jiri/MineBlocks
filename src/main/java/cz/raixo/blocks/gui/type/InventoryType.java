@@ -1,5 +1,6 @@
 package cz.raixo.blocks.gui.type;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -27,15 +28,15 @@ public enum InventoryType {
 
     private final int size;
     private final int rowLength;
-    private final BiFunction<InventoryHolder, String, Inventory> creator;
+    private final BiFunction<InventoryHolder, Component, Inventory> creator;
 
-    InventoryType(int size, int rowLength, BiFunction<InventoryHolder, String, Inventory> creator) {
+    InventoryType(int size, int rowLength, BiFunction<InventoryHolder, Component, Inventory> creator) {
         this.size = size;
         this.rowLength = rowLength;
         this.creator = creator;
     }
 
-    public Inventory create(InventoryHolder owner, String title) {
+    public Inventory create(InventoryHolder owner, Component title) {
         return creator.apply(owner, title);
     }
 

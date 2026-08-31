@@ -8,7 +8,6 @@ import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.EditMenu;
 import cz.raixo.blocks.util.color.Colors;
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -56,12 +55,12 @@ public class RenameItem extends BlockMenuItem {
     @Override
     public ItemStack render(MineBlock state) {
         return ItemStackBuilder.create(Material.NAME_TAG)
-                .withName(MineDown.parse("&#205295&&lRename"))
+                .withName(Colors.itemComponent("&#205295&&lRename"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Current name: &#2C74B3&" + state.getId()),
+                        Colors.itemComponent("&7Current name: &#2C74B3&" + state.getId()),
                         Component.empty(),
-                        MineDown.parse("&7Click to change")
+                        Colors.itemComponent("&7Click to change")
                 ).build();
     }
 }

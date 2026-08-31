@@ -21,6 +21,13 @@ public class SimpleRandom<E> {
 
     public void clear() {
         map.clear();
+        // The running total is part of the table; leaving it behind made every refresh skew the
+        // weights and start returning null for a growing share of rolls.
+        total = 0;
+    }
+
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
 }

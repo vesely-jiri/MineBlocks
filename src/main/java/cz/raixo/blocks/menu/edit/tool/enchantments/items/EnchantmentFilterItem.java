@@ -7,7 +7,7 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.tool.enchantments.EnchantmentFilterMenu;
 import cz.raixo.blocks.util.range.NumberRange;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -60,7 +60,7 @@ public class EnchantmentFilterItem extends BlockMenuItem {
 
         if (enchantments.isEmpty() && slot == 13) {
             return ItemStackBuilder.create(Material.STRUCTURE_VOID)
-                    .withName(MineDown.parse("&#DF2E38&There are no enchantment filters"))
+                    .withName(Colors.itemComponent("&#DF2E38&There are no enchantment filters"))
                     .withItemFlags(ItemFlag.values())
                     .build();
         }
@@ -99,17 +99,17 @@ public class EnchantmentFilterItem extends BlockMenuItem {
             lore.add(Component.translatable("enchantment." + key.getNamespace() + "." + key.getKey())
                     .color(TextColor.color(154, 32, 140)));
             lore.add(Component.empty());
-            lore.add(MineDown.parse("&7For levels: &#205295&" + levels));
+            lore.add(Colors.itemComponent("&7For levels: &#205295&" + levels));
             lore.add(Component.empty());
-            lore.add(MineDown.parse("&7Value: " +
+            lore.add(Colors.itemComponent("&7Value: " +
                     (toolEnchantment.getResult().getBooleanValue() ? "&#539165&Allowed" : "&#DF2E38&Denied")
             ));
             lore.add(Component.empty());
-            lore.add(MineDown.parse("&7Left click to &#DF2E38&delete"));
-            lore.add(MineDown.parse("&7Right click to change value"));
+            lore.add(Colors.itemComponent("&7Left click to &#DF2E38&delete"));
+            lore.add(Colors.itemComponent("&7Right click to change value"));
 
             return ItemStackBuilder.create(toolEnchantment.getResult().getBooleanValue() ? Material.GREEN_TERRACOTTA : Material.RED_TERRACOTTA)
-                    .withName(MineDown.parse("&#205295&&lEnchantment filter"))
+                    .withName(Colors.itemComponent("&#205295&&lEnchantment filter"))
                     .withLore(lore)
                     .build();
         }

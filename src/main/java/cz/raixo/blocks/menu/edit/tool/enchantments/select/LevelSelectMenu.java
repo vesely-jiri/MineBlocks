@@ -11,7 +11,7 @@ import cz.raixo.blocks.menu.general.LearnMoreItem;
 import cz.raixo.blocks.util.range.MultiNumberRange;
 import cz.raixo.blocks.util.range.NumberRange;
 import cz.raixo.blocks.util.range.StaticNumber;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -40,10 +40,10 @@ public class LevelSelectMenu extends Gui<MapGuiFiller> {
             if (level <= ench.getMaxLevel()) {
                 boolean present = levels.contains(level);
                 return ItemStackBuilder.create(present ? Material.GREEN_TERRACOTTA : Material.RED_TERRACOTTA)
-                        .withName(MineDown.parse((present ? "&#539165&" : "&#DF2E38&") + level))
+                        .withName(Colors.itemComponent((present ? "&#539165&" : "&#DF2E38&") + level))
                         .withLore(
                                 Component.empty(),
-                                MineDown.parse("&7Click to " + (present ? "remove" : "add"))
+                                Colors.itemComponent("&7Click to " + (present ? "remove" : "add"))
                         )
                         .build();
             }
@@ -64,7 +64,7 @@ public class LevelSelectMenu extends Gui<MapGuiFiller> {
 
         filler.setItem('o', new GuiItemBuilder<>(filler,
                 ItemStackBuilder.create("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmIwYzE2NDdkYWU1ZDVmNmJjNWRjYTU0OWYxNjUyNTU2YzdmMWJjMDhhZGVlMzdjY2ZjNDA5MGJjMjBlNjQ3ZSJ9fX0=")
-                        .withName(MineDown.parse("&#205295&Confirm selection"))
+                        .withName(Colors.itemComponent("&#205295&Confirm selection"))
                         .build()
                 )
                 .withClickHandler(itemClickEvent -> callback.accept(

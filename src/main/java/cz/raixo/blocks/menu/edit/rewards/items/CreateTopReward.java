@@ -12,7 +12,6 @@ import cz.raixo.blocks.menu.edit.rewards.RewardsEditMenu;
 import cz.raixo.blocks.menu.edit.rewards.edit.RewardEditMenu;
 import cz.raixo.blocks.util.color.Colors;
 import cz.raixo.blocks.util.range.NumberRange;
-import de.themoep.minedown.adventure.MineDown;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -62,7 +61,7 @@ public class CreateTopReward extends BlockMenuItem {
     @Override
     public ItemStack render(MineBlock state) {
         return ItemStackBuilder.create("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmNjYmY5ODgzZGQzNTlmZGYyMzg1YzkwYTQ1OWQ3Mzc3NjUzODJlYzQxMTdiMDQ4OTVhYzRkYzRiNjBmYyJ9fX0=")
-                .withName(MineDown.parse("&#205295&Create top reward"))
+                .withName(Colors.itemComponent("&#205295&Create top reward"))
                 .build();
     }
 

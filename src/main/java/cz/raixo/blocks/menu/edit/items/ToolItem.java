@@ -6,7 +6,7 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.tool.ToolEditMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -31,13 +31,13 @@ public class ToolItem extends BlockMenuItem {
                 .map(requiredTool -> requiredTool.getEnchantmentFilters().size() + requiredTool.getNameFilters().size() + requiredTool.getMaterialFilters().size())
                 .orElse(0);
         return ItemStackBuilder.create(Material.IRON_PICKAXE)
-                .withName(MineDown.parse("&#205295&&lTool requirements"))
+                .withName(Colors.itemComponent("&#205295&&lTool requirements"))
                 .withLore(List.of(
                         Component.empty(),
-                        MineDown.parse("&7There are &#2C74B3&" + totalRules + " &7tool"),
-                        MineDown.parse("&7filter rules in total"),
+                        Colors.itemComponent("&7There are &#2C74B3&" + totalRules + " &7tool"),
+                        Colors.itemComponent("&7filter rules in total"),
                         Component.empty(),
-                        MineDown.parse("&7Click to edit")
+                        Colors.itemComponent("&7Click to edit")
                 ))
                 .addItemFlags(ItemFlag.values())
                 .build();

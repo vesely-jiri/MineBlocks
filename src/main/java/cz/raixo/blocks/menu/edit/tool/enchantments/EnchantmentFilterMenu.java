@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Getter
 public class EnchantmentFilterMenu extends PageableBlockMenu<MapGuiFiller> {
 
-    public static final List<Enchantment> ENCHANTMENTS = List.of(Enchantment.values());
+    public static final List<Enchantment> ENCHANTMENTS = cz.raixo.blocks.util.Enchantments.all();
 
     public EnchantmentFilterMenu(MineBlock block) {
         super(new MapGuiFiller(

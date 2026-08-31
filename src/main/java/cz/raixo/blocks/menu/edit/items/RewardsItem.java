@@ -7,7 +7,7 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.rewards.RewardsEditMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
@@ -30,13 +30,13 @@ public class RewardsItem  extends BlockMenuItem {
         BlockRewards rewards = getState().getRewards();
         int totalRewards = rewards.getRewards().size() + rewards.getLastRewards().size();
         return ItemStackBuilder.create(Material.GOLD_NUGGET)
-                .withName(MineDown.parse("&#205295&&lRewards"))
+                .withName(Colors.itemComponent("&#205295&&lRewards"))
                 .withLore(List.of(
                         Component.empty(),
-                        MineDown.parse("&7There are &#2C74B3&" + totalRewards + " &7rewards"),
-                        MineDown.parse("&7in total"),
+                        Colors.itemComponent("&7There are &#2C74B3&" + totalRewards + " &7rewards"),
+                        Colors.itemComponent("&7in total"),
                         Component.empty(),
-                        MineDown.parse("&7Click to edit")
+                        Colors.itemComponent("&7Click to edit")
                 ))
                 .addItemFlags(ItemFlag.values())
                 .build();

@@ -11,10 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BlockTopTest {
 
     @Test
-    void test() {
+    void keepsTheTenBestPlayersInOrder() {
         BlockTop top = new BlockTop();
         List<PlayerData> players = new LinkedList<>();
-        Random random = new Random();
+        // Seeded so a failure is reproducible instead of showing up on one run in ten.
+        Random random = new Random(20260831L);
 
         for (int i = 0; i < 100; i++) {
             PlayerData playerData = new PlayerData(UUID.randomUUID(), "player" + (i + 1), random.nextInt(1000));

@@ -17,6 +17,7 @@ import cz.raixo.blocks.block.tool.material.MaterialFilter;
 import cz.raixo.blocks.block.tool.name.NameFilter;
 import cz.raixo.blocks.block.type.BlockType;
 import cz.raixo.blocks.util.ConfigUtil;
+import cz.raixo.blocks.util.Enchantments;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -42,6 +43,8 @@ public class BlocksConfig {
                 if (blockSection == null) continue;
                 MineBlock block = new MineBlock(plugin);
                 block.setId(id);
+                block.setDisplayName(blockSection.getString("name"));
+                block.setRewardInfo(ConfigUtil.getMultiLine(blockSection, "reward-info"));
                 block.setType(new BlockType(block, ConfigUtil.getMaterial(blockSection.getString("type"))));
                 block.setHealth(new BlockHealth(block, blockSection.getInt("health")));
                 block.setPermission(blockSection.getString("permission"));
@@ -186,7 +189,7 @@ public class BlocksConfig {
             defEnchantment = parseDefaultResult(enchantments.getString("default"));
             for (String key : enchantments.getKeys(false)) {
                 if (key.equalsIgnoreCase("default")) continue;
-                Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(key));
+                Enchantment enchantment = Enchantments.byName(key).orElse(null);
                 ConfigurationSection enchantSection = enchantments.getConfigurationSection(key);
                 if (enchantment == null || enchantSection == null) continue;
                 ToolEnchantment.parse(enchantSection).ifPresent(toolEnchantment -> enchantmentFilters.put(
@@ -224,7 +227,8 @@ public class BlocksConfig {
                 enchantmentFilters,
                 defEnchantment,
                 nameFilters,
-                defName
+                defName,
+                section.getString("display")
         );
     }
 
@@ -298,6 +302,8 @@ public class BlocksConfig {
 
     private void setRequiredTool(ConfigurationSection section, RequiredTool tool) {
         if (tool == null) return;
+        if (tool.getDisplayName() != null && !tool.getDisplayName().isBlank())
+            section.set("display", tool.getDisplayName());
         Optional.ofNullable(tool.getEnchantmentDefault()).ifPresent(r -> section.set("enchantments.default", r.name()));
         Optional.ofNullable(tool.getNameDefault()).ifPresent(r -> section.set("names.default", r.name()));
 
@@ -342,6 +348,9 @@ public class BlocksConfig {
         ConfigurationSection blockSection = section.createSection(block.getId());
 
         setLocation(blockSection.createSection("location"), block.getLocation());
+        blockSection.set("name", block.getDisplayName());
+        if (block.getRewardInfo() != null && !block.getRewardInfo().isEmpty())
+            ConfigUtil.setMultiLine(blockSection, "reward-info", block.getRewardInfo());
         blockSection.set("type", block.getType().getType().name());
         setHologram(blockSection.createSection("hologram"), block.getHologram());
         blockSection.set("health", block.getHealth().getMaxHealth());

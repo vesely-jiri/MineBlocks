@@ -1,25 +1,24 @@
 package cz.raixo.blocks.block.rewards.commands.batch;
 
 import cz.raixo.blocks.block.playerdata.PlayerData;
+import cz.raixo.blocks.block.rewards.commands.RawEntry;
 import cz.raixo.blocks.block.rewards.commands.RewardCommands;
 import cz.raixo.blocks.block.rewards.commands.RewardEntry;
 import cz.raixo.blocks.block.rewards.context.RewardContext;
-import lombok.SneakyThrows;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/** Hands out every configured entry, used by rewards where nothing should be left to chance. */
 public class BatchRewardCommands implements RewardCommands<BatchCommandEntry> {
 
-    static String MODE_NAME = "all";
+    static final String MODE_NAME = "all";
 
     private final List<BatchCommandEntry> commands;
 
-
-    @SneakyThrows
-    public BatchRewardCommands(List<String> commands) {
-        this.commands = commands.stream().map(BatchCommandEntry::new).collect(Collectors.toList());
+    public BatchRewardCommands(List<RawEntry> commands) {
+        this.commands = new ArrayList<>(commands.stream().map(BatchCommandEntry::of).toList());
     }
 
     @Override
@@ -28,8 +27,8 @@ public class BatchRewardCommands implements RewardCommands<BatchCommandEntry> {
     }
 
     @Override
-    public List<String> saveToList() {
-        return commands.stream().map(BatchCommandEntry::getCommand).collect(Collectors.toUnmodifiableList());
+    public List<Object> saveToList() {
+        return commands.stream().map(RewardEntry::serialize).toList();
     }
 
     @Override
@@ -43,8 +42,8 @@ public class BatchRewardCommands implements RewardCommands<BatchCommandEntry> {
     }
 
     @Override
-    public List<String> rewardPlayer(PlayerData player, RewardContext context) {
-        return saveToList();
+    public List<? extends RewardEntry> rewardPlayer(PlayerData player, RewardContext context) {
+        return asList();
     }
 
     @Override

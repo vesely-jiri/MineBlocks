@@ -8,7 +8,7 @@ import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.tool.ToolEditMenu;
 import cz.raixo.blocks.menu.edit.tool.materials.MaterialFilterMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -39,18 +39,18 @@ public class MaterialFilterItem extends BlockMenuItem {
         Optional<RequiredTool> requiredTool = Optional.ofNullable(getState().getRequiredTool());
         int count = requiredTool.map(t -> t.getMaterialFilters().size()).orElse(0);
         return ItemStackBuilder.create(Material.IRON_PICKAXE)
-                .withName(MineDown.parse("&#205295&&lType filters"))
+                .withName(Colors.itemComponent("&#205295&&lType filters"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Default value: " +
+                        Colors.itemComponent("&7Default value: " +
                                 (requiredTool.map(v -> v.getMaterialDefault().getBooleanValue()).orElse(true)
                                 ? "&#539165&Allowed" : "&#DF2E38&Denied")
                         ),
                         Component.empty(),
-                        MineDown.parse("&7There "+ (count == 1 ? "is" : "are") +" &#2C74B3&" + count + " &7type filters"),
+                        Colors.itemComponent("&7There "+ (count == 1 ? "is" : "are") +" &#2C74B3&" + count + " &7type filters"),
                         Component.empty(),
-                        MineDown.parse("&7Left click to edit"),
-                        MineDown.parse("&7Right click to change default")
+                        Colors.itemComponent("&7Left click to edit"),
+                        Colors.itemComponent("&7Right click to change default")
                 )
                 .addItemFlags(ItemFlag.values())
                 .build();

@@ -5,7 +5,7 @@ import cz.raixo.blocks.gui.item.click.ItemClickEvent;
 import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.PageableBlockMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -27,7 +27,7 @@ public class NextPageItem extends BlockMenuItem {
     public ItemStack render(MineBlock state) {
         if (menu == null || !menu.hasNextPage()) return new ItemStack(Material.AIR);
         return ItemStackBuilder.create("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDllY2NjNWMxYzc5YWE3ODI2YTE1YTdmNWYxMmZiNDAzMjgxNTdjNTI0MjE2NGJhMmFlZjQ3ZTVkZTlhNWNmYyJ9fX0=")
-                .withName(MineDown.parse("&#205295&Next page"))
+                .withName(Colors.itemComponent("&#205295&Next page"))
                 .build();
     }
 

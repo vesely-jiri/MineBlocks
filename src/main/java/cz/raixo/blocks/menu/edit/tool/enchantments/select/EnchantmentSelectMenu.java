@@ -25,7 +25,7 @@ public class EnchantmentSelectMenu extends Gui<MapGuiFiller> {
 
     private static MapGuiFiller getEnchantmentsFiller(MineBlock block) {
         List<String> list = new LinkedList<>();
-        InventoryType type = InventoryType.toFitChest(Enchantment.values().length + 9 -
+        InventoryType type = InventoryType.toFitChest(cz.raixo.blocks.util.Enchantments.all().size() + 9 -
                 Optional.ofNullable(block.getRequiredTool()).map(t -> t.getEnchantmentFilters().size()).orElse(0));
         int rows = type.getSize() / type.getRowLength();
         for (int i = 1; i < rows  ; i++) {
@@ -36,12 +36,12 @@ public class EnchantmentSelectMenu extends Gui<MapGuiFiller> {
     }
 
     public EnchantmentSelectMenu(Gui<?> parent, MineBlock block, Consumer<Enchantment> callback) {
-        super(getEnchantmentsFiller(block), Component.text("Enchantment selection"), InventoryType.toFitChest(Enchantment.values().length + 9 -
+        super(getEnchantmentsFiller(block), Component.text("Enchantment selection"), InventoryType.toFitChest(cz.raixo.blocks.util.Enchantments.all().size() + 9 -
                 Optional.ofNullable(block.getRequiredTool()).map(t -> t.getEnchantmentFilters().size()).orElse(0)));
 
         MapGuiFiller filler = getFiller();
 
-        List<Enchantment> enchantments = new LinkedList<>(List.of(Enchantment.values()));
+        List<Enchantment> enchantments = new LinkedList<>(cz.raixo.blocks.util.Enchantments.all());
         enchantments.removeAll(Optional.of(block.getRequiredTool()).map(t -> t.getEnchantmentFilters().keySet()).orElse(Collections.emptySet()));
 
         filler.setItem('a', new GuiItemBuilder<>(filler, (Renderer<Consumer<Enchantment>>) (slot, state) -> {

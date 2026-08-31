@@ -8,7 +8,7 @@ import cz.raixo.blocks.gui.item.click.ItemClickEvent;
 import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.tool.materials.MaterialFilterMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -51,7 +51,7 @@ public class MaterialFilterFile extends BlockMenuItem {
 
         if (materialFilters.isEmpty() && slot == 13) {
             return ItemStackBuilder.create(Material.STRUCTURE_VOID)
-                    .withName(MineDown.parse("&#DF2E38&There are no type filters"))
+                    .withName(Colors.itemComponent("&#DF2E38&There are no type filters"))
                     .withItemFlags(ItemFlag.values())
                     .build();
         }
@@ -75,21 +75,21 @@ public class MaterialFilterFile extends BlockMenuItem {
                 type = ((SingleMaterialFilter) materialFilter).getMaterial();
             } else if (materialFilter instanceof ContainsMaterialFilter) {
                 type = Material.PAPER;
-                lore.add(MineDown.parse("&7" + ((ContainsMaterialFilter) materialFilter).getStr()));
+                lore.add(Colors.itemComponent("&7" + ((ContainsMaterialFilter) materialFilter).getStr()));
             } else type = Material.STRUCTURE_VOID;
 
             lore.addAll(List.of(
                     Component.empty(),
-                    MineDown.parse("&7Value: " +
+                    Colors.itemComponent("&7Value: " +
                             (materialFilter.getResult().getBooleanValue() ? "&#539165&Allowed" : "&#DF2E38&Denied")
                     ),
                     Component.empty(),
-                    MineDown.parse("&7Left click to &#DF2E38&delete"),
-                    MineDown.parse("&7Right click to change value")
+                    Colors.itemComponent("&7Left click to &#DF2E38&delete"),
+                    Colors.itemComponent("&7Right click to change value")
             ));
 
             return ItemStackBuilder.create(type)
-                    .withName(MineDown.parse("&#205295&&lType filter"))
+                    .withName(Colors.itemComponent("&#205295&&lType filter"))
                     .withLore(lore)
                     .build();
         }

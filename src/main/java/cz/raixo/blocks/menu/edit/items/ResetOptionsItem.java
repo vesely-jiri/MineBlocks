@@ -7,7 +7,7 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.resetopt.ResetOptionsMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -28,13 +28,13 @@ public class ResetOptionsItem extends BlockMenuItem {
         int inactiveReset = resetOptions.getInactiveTime();
         boolean hasInactiveReset = inactiveReset > 0;
         return ItemStackBuilder.create(Material.RED_DYE)
-                .withName(MineDown.parse("&#205295&&lReset options"))
+                .withName(Colors.itemComponent("&#205295&&lReset options"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Inactive reset: &#2C74B3&" + (hasInactiveReset ? inactiveReset + "s" : "&#DF2E38&No")),
-                        MineDown.parse("&7On restart reset: &#2C74B3&" + (resetOptions.isOnRestart() ? "&#539165&Yes" : "&#DF2E38&No")),
+                        Colors.itemComponent("&7Inactive reset: &#2C74B3&" + (hasInactiveReset ? inactiveReset + "s" : "&#DF2E38&No")),
+                        Colors.itemComponent("&7On restart reset: &#2C74B3&" + (resetOptions.isOnRestart() ? "&#539165&Yes" : "&#DF2E38&No")),
                         Component.empty(),
-                        MineDown.parse("&7Click to edit")
+                        Colors.itemComponent("&7Click to edit")
                 ).build();
     }
 

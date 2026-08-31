@@ -7,7 +7,7 @@ import cz.raixo.blocks.gui.item.click.ItemClickEvent;
 import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.tool.name.NameFilterMenu;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -48,7 +48,7 @@ public class NameFilterFile extends BlockMenuItem {
 
         if (nameFilters.isEmpty() && slot == 13) {
             return ItemStackBuilder.create(Material.STRUCTURE_VOID)
-                    .withName(MineDown.parse("&#DF2E38&There are no name filters"))
+                    .withName(Colors.itemComponent("&#DF2E38&There are no name filters"))
                     .withItemFlags(ItemFlag.values())
                     .build();
         }
@@ -66,16 +66,16 @@ public class NameFilterFile extends BlockMenuItem {
         if (slot < pageList.size()) {
             NameFilter nameFilter = pageList.get(slot);
             return ItemStackBuilder.create(nameFilter.getResult().getBooleanValue() ? Material.GREEN_TERRACOTTA : Material.RED_TERRACOTTA)
-                    .withName(MineDown.parse("&#205295&&lName filter"))
+                    .withName(Colors.itemComponent("&#205295&&lName filter"))
                     .withLore(
-                            MineDown.parse("&7" + nameFilter.getName()),
+                            Colors.itemComponent("&7" + nameFilter.getName()),
                             Component.empty(),
-                            MineDown.parse("&7Value: " +
+                            Colors.itemComponent("&7Value: " +
                                     (nameFilter.getResult().getBooleanValue() ? "&#539165&Allowed" : "&#DF2E38&Denied")
                             ),
                             Component.empty(),
-                            MineDown.parse("&7Left click to &#DF2E38&delete"),
-                            MineDown.parse("&7Right click to change value")
+                            Colors.itemComponent("&7Left click to &#DF2E38&delete"),
+                            Colors.itemComponent("&7Right click to change value")
                     )
                     .build();
         }

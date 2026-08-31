@@ -11,6 +11,7 @@ import cz.raixo.blocks.block.playerdata.placeholder.PlayerDataPlaceholderSet;
 import cz.raixo.blocks.block.reset.ResetOptions;
 import cz.raixo.blocks.block.rewards.BlockRewards;
 import cz.raixo.blocks.block.tool.RequiredTool;
+import cz.raixo.blocks.block.tool.Result;
 import cz.raixo.blocks.block.top.BlockTop;
 import cz.raixo.blocks.block.type.BlockType;
 import cz.raixo.blocks.util.color.Colors;
@@ -21,8 +22,24 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -33,8 +50,43 @@ public class MineBlock {
         return new File(plugin.getStorageFolder(), block.id + ".mb");
     }
 
+    /** The block {@code /mb create} starts from, so the command and the config defaults cannot drift. */
+    public static MineBlock createDefault(MineBlocksPlugin plugin, String id, Location location) {
+        MineBlock block = new MineBlock(plugin);
+        block.setId(id);
+        block.setDisplayName(id);
+        block.setLocation(location);
+        block.setType(new BlockType(block, Material.DIAMOND_BLOCK));
+        block.setHealth(new BlockHealth(block, 100));
+        block.setHologram(new BlockHologram(block, null, List.of(
+                "#ICON: %type%",
+                "#2C74B3&l%name%",
+                "&7%broken%&8/&7%max_health% &8| &7%required_tool%",
+                "&7%reward_info%",
+                "#2C74B3&lTOP",
+                "&7%player_1% &8- #2C74B3%player_1_breaks%",
+                "&7%player_2% &8- #2C74B3%player_2_breaks%",
+                "&7%player_3% &8- #2C74B3%player_3_breaks%",
+                "&c%timeout%"
+        )));
+        block.setCoolDown(new BlockCoolDown(block, -1, null, ""));
+        block.setResetOptions(new ResetOptions(block, false, -1, ""));
+        block.setMessages(new BlockMessages("&7Block was destroyed\n&7Your breaks: %breaks%"));
+        block.setRewards(new BlockRewards(block, new LinkedList<>(), new LinkedList<>()));
+        block.setRequiredTool(new RequiredTool(
+                new LinkedList<>(), Result.ALLOWED,
+                new LinkedHashMap<>(), Result.ALLOWED,
+                new LinkedList<>(), Result.ALLOWED
+        ));
+        return block;
+    }
+
     private final MineBlocksPlugin plugin;
     private String id;
+    /** Human readable name shown in the hologram and in messages; falls back to the id. */
+    private String displayName;
+    /** Free-form description of what the block hands out, rendered as {@code %reward_info%}. */
+    private String rewardInfo;
     private BlockHologram hologram;
     private BlockHealth health;
     private Location location;
@@ -48,6 +100,10 @@ public class MineBlock {
     private BlockTop top = new BlockTop();
     private int breakLimit = 0;
     private Map<UUID, PlayerData> playerDataMap = new HashMap<>();
+
+    public String getDisplayName() {
+        return displayName == null || displayName.isBlank() ? id : displayName;
+    }
 
     public Runnable onBreak(Player player) {
         health.decrement();
@@ -69,9 +125,12 @@ public class MineBlock {
 
     private Runnable onLastBreak(Player player) {
         Runnable runnable = rewards.giveLastRewards(player.getUniqueId());
-        broadcast(messages.getBreakMessage());
-        reset();
+        // Start the cooldown before announcing, so %timeout% in the break message already resolves,
+        // and clear the progress afterwards, so %breaks% still holds each player's own count.
         coolDown.activate();
+        broadcast(messages.getBreakMessage());
+        resetProgress();
+        hologram.update();
         return runnable;
     }
 
@@ -84,7 +143,7 @@ public class MineBlock {
     public void hide() {
         hologram.hide();
         getLocation().getBlock().setType(Material.AIR, false);
-        coolDown.deactivate();
+        coolDown.cancel();
     }
 
     public void destroy() {
@@ -92,24 +151,43 @@ public class MineBlock {
         hologram.delete();
     }
 
+    /** Restores the block to a fully mineable state and cancels a running cooldown. */
     public void reset() {
-        health.reset();
-        playerDataMap.clear();
-        resetOptions.cancelInactive();
-        coolDown.deactivate();
-        top.clear();
+        resetProgress();
+        coolDown.cancel();
         hologram.update();
     }
 
+    /** Restores health and per-player progress without touching the cooldown. */
+    public void resetProgress() {
+        health.reset();
+        playerDataMap.clear();
+        resetOptions.cancelInactive();
+        top.clear();
+    }
+
+    /** Sends a message to every online player, with block and per-player placeholders resolved. */
     public void broadcast(String message) {
         if (message == null || message.isEmpty()) return;
-        message = new BlockPlaceholderSet(this).parse(message);
+        String parsed = new BlockPlaceholderSet(this).parse(message);
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            PlayerData playerData = playerDataMap.getOrDefault(player.getUniqueId(), new PlayerData(player.getUniqueId(), player.getName()));
-            player.sendMessage(Colors.colorize(
-                    new PlayerDataPlaceholderSet(playerData).parse(message)
-            ));
+            PlayerData playerData = playerDataMap.getOrDefault(
+                    player.getUniqueId(),
+                    new PlayerData(player.getUniqueId(), player.getName())
+            );
+            Colors.sendMultiLine(player, new PlayerDataPlaceholderSet(playerData).parse(parsed));
         }
+    }
+
+    /** Sends a message to a single player, with block and that player's placeholders resolved. */
+    public void message(Player player, String message) {
+        if (message == null || message.isEmpty()) return;
+        PlayerData playerData = playerDataMap.getOrDefault(
+                player.getUniqueId(),
+                new PlayerData(player.getUniqueId(), player.getName())
+        );
+        String parsed = new BlockPlaceholderSet(this).parse(message);
+        Colors.sendMultiLine(player, new PlayerDataPlaceholderSet(playerData).parse(parsed));
     }
 
     public void saveData(DataOutput output) throws IOException {
@@ -125,7 +203,7 @@ public class MineBlock {
     }
 
     public void saveData(File file) throws IOException {
-        if (!file.exists()) file.createNewFile();
+        if (!file.exists() && !file.createNewFile()) return;
         try (DataOutputStream fos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
             saveData(fos);
         }
@@ -136,7 +214,7 @@ public class MineBlock {
         health.setHealth(input.readInt());
         if (input.readBoolean()) {
             coolDown.activate(new Date(input.readLong()));
-        } else coolDown.deactivate();
+        } else coolDown.cancel();
         playerDataMap.clear();
         top.clear();
         int players = input.readInt();
@@ -156,7 +234,7 @@ public class MineBlock {
     }
 
     public void setCoolDown(BlockCoolDown coolDown) {
-        if (this.coolDown != null) this.coolDown.deactivate();
+        if (this.coolDown != null) this.coolDown.cancel();
         this.coolDown = coolDown;
     }
 
@@ -169,6 +247,13 @@ public class MineBlock {
 
     public boolean hasPermission() {
         return permission != null && !permission.isBlank();
+    }
+
+    /** Number of times the block has been mined in the current cycle. */
+    public int getBrokenCount() {
+        return Optional.ofNullable(health)
+                .map(h -> h.getMaxHealth() - h.getHealth())
+                .orElse(0);
     }
 
 }

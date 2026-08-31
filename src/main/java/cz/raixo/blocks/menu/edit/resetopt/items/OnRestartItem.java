@@ -6,7 +6,7 @@ import cz.raixo.blocks.gui.item.click.ItemClickEvent;
 import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -27,12 +27,12 @@ public class OnRestartItem extends BlockMenuItem {
     public ItemStack render(MineBlock state) {
         boolean enabled = state.getResetOptions().isOnRestart();
         return ItemStackBuilder.create(enabled ? Material.GREEN_TERRACOTTA : Material.RED_TERRACOTTA)
-                .withName(MineDown.parse("&#205295&&lOn restart reset"))
+                .withName(Colors.itemComponent("&#205295&&lOn restart reset"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Current value: &#2C74B3&" + (enabled ? "&#539165&Yes" : "&#DF2E38&No")),
+                        Colors.itemComponent("&7Current value: &#2C74B3&" + (enabled ? "&#539165&Yes" : "&#DF2E38&No")),
                         Component.empty(),
-                        MineDown.parse("&7Click to change")
+                        Colors.itemComponent("&7Click to change")
                 )
                 .build();
     }

@@ -7,7 +7,6 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.util.color.Colors;
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -50,12 +49,12 @@ public class PermissionItem extends BlockMenuItem {
     @Override
     public ItemStack render(MineBlock state) {
         return ItemStackBuilder.create(Material.IRON_BARS)
-                .withName(MineDown.parse("&#205295&&lPermission"))
+                .withName(Colors.itemComponent("&#205295&&lPermission"))
                 .withLore(
                         Component.empty(),
-                        MineDown.parse("&7Current permission: &#2C74B3&" + (state.hasPermission() ? state.getPermission() : "&#DF2E38&No permission")),
+                        Colors.itemComponent("&7Current permission: &#2C74B3&" + (state.hasPermission() ? state.getPermission() : "&#DF2E38&No permission")),
                         Component.empty(),
-                        MineDown.parse("&7Click to change")
+                        Colors.itemComponent("&7Click to change")
                 ).build();
     }
 }

@@ -1,23 +1,17 @@
 package cz.raixo.blocks;
 
-import co.aikar.commands.BukkitCommandManager;
-import co.aikar.commands.MessageType;
-import cz.raixo.blocks.acf.ColorsFormatter;
 import cz.raixo.blocks.block.MineBlock;
 import cz.raixo.blocks.block.rewards.offline.OfflineRewardsStorage;
-import cz.raixo.blocks.commands.MBCommand;
+import cz.raixo.blocks.commands.MineBlocksCommand;
 import cz.raixo.blocks.config.MineBlocksConfig;
 import cz.raixo.blocks.gui.Gui;
-import cz.raixo.blocks.integration.Integration;
 import cz.raixo.blocks.integration.IntegrationManager;
-import cz.raixo.blocks.integration.models.hologram.HologramProvider;
 import cz.raixo.blocks.listener.BlocksListener;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.listener.EditListener;
-import cz.raixo.blocks.util.VersionUtil;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import lombok.Getter;
-import lombok.SneakyThrows;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -38,9 +32,7 @@ public class MineBlocksPlugin extends JavaPlugin {
     private MineBlocksConfig configuration;
     private IntegrationManager integrationManager;
     private final BlockRegistry blockRegistry = new BlockRegistry();
-    private BukkitCommandManager commandManager;
     private EditListener editValuesListener;
-    private BukkitAudiences bukkitAudiences;
     private File storageFolder;
     private OfflineRewardsStorage offlineRewards;
 
@@ -49,15 +41,20 @@ public class MineBlocksPlugin extends JavaPlugin {
         storageFolder = new File(getDataFolder(), "storage");
         createFolders();
         offlineRewards = new OfflineRewardsStorage(storageFolder);
-        bukkitAudiences = BukkitAudiences.create(this);
         Gui.enable(this);
         saveDefaultConfig();
-        commandManager = new BukkitCommandManager(this);
-        commandManager.usePerIssuerLocale(false);
-        for (MessageType messageType : List.of(MessageType.HELP, MessageType.ERROR, MessageType.SYNTAX, MessageType.INFO)) {
-            commandManager.setFormat(messageType, new ColorsFormatter());
-        }
-        commandManager.registerCommand(new MBCommand(this));
+
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            Commands commands = event.registrar();
+            commands.register(
+                    MineBlocksCommand.build(this),
+                    "Manage MineBlocks blocks",
+                    List.of("mb")
+            );
+        });
+
+        // Blocks need their worlds, and the hologram entities need loaded chunks, so the actual
+        // load runs a tick after every plugin has enabled.
         getServer().getScheduler().runTaskLater(this, () -> {
             editValuesListener = new EditListener(this);
             getServer().getPluginManager().registerEvents(editValuesListener, this);
@@ -68,14 +65,7 @@ public class MineBlocksPlugin extends JavaPlugin {
 
     private void load() {
         configuration = new MineBlocksConfig(getConfig());
-        try {
-            integrationManager = new IntegrationManager(this);
-        } catch (IllegalStateException e) {
-            getLogger().warning(e.getMessage());
-            getLogger().warning("Please note that plugin will not work unless you install required dependencies!");
-            commandManager.unregisterCommands();
-            return;
-        }
+        integrationManager = new IntegrationManager(this);
         for (MineBlock block : configuration.getBlocksConfig().getBlocks(this)) {
             blockRegistry.register(block);
         }
@@ -85,23 +75,6 @@ public class MineBlocksPlugin extends JavaPlugin {
                         .collect(Collectors.joining(", "))
         );
         logInfo("MineBlocks enabled successfully!");
-        getServer().getScheduler().runTask(this, () -> VersionUtil.getCurrentVersion().thenAccept(s -> {
-            String pluginVersion = getDescription().getVersion();
-            if (VersionUtil.isHigherVersion(pluginVersion, s)) {
-                logInfo("Plugin is outdated! Current version is "+ s +", but the installed version is "+ pluginVersion + "! You can update using /mb update");
-            }
-        }));
-
-        Metrics metrics = new Metrics(this, 13178);
-
-        metrics.addCustomChart(new Metrics.SingleLineChart("blocks", () -> blockRegistry.getBlocks().size()));
-        metrics.addCustomChart(new Metrics.SimplePie("hologram_plugin", () -> {
-            HologramProvider hologramProvider = integrationManager.getHologramProvider();
-            if (hologramProvider instanceof Integration) {
-                return ((Integration) hologramProvider).getPluginName();
-            }
-            return null;
-        }));
     }
 
     @Override
@@ -111,16 +84,14 @@ public class MineBlocksPlugin extends JavaPlugin {
     }
 
     private void unload() {
-        if (integrationManager != null)
-            integrationManager.disable();
-        if (!storageFolder.exists())
-            createFolders();
+        if (integrationManager != null) integrationManager.disable();
+        if (!storageFolder.exists()) createFolders();
         closeAllGuis();
         blockRegistry.unregisterAll(block -> {
             try {
                 block.saveData(MineBlock.getStoragePath(this, block));
             } catch (IOException e) {
-                e.printStackTrace();
+                logWarn("Could not save data of block " + block.getId() + ": " + e.getMessage());
             }
         });
         logInfo("MineBlocks disabled successfully!");
@@ -175,10 +146,14 @@ public class MineBlocksPlugin extends JavaPlugin {
         config = YamlConfiguration.loadConfiguration(file);
     }
 
-    @SneakyThrows
     @Override
     public void saveConfig() {
-        if (config != null) config.save(getConfigFile());
+        if (config == null) return;
+        try {
+            config.save(getConfigFile());
+        } catch (IOException e) {
+            logWarn("Could not save config.yml: " + e.getMessage());
+        }
     }
 
     private File getConfigFile() {

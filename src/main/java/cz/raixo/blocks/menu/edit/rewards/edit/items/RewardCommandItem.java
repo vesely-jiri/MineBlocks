@@ -12,7 +12,6 @@ import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.menu.edit.rewards.edit.RewardEditMenu;
 import cz.raixo.blocks.util.NumberUtil;
 import cz.raixo.blocks.util.color.Colors;
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -89,7 +88,7 @@ public class RewardCommandItem extends BlockMenuItem {
 
         if (commands.isEmpty() && slot == 13) {
             return ItemStackBuilder.create(Material.STRUCTURE_VOID)
-                    .withName(MineDown.parse("&#DF2E38&There are no commands"))
+                    .withName(Colors.itemComponent("&#DF2E38&There are no commands"))
                     .withItemFlags(ItemFlag.values())
                     .build();
         }
@@ -108,22 +107,22 @@ public class RewardCommandItem extends BlockMenuItem {
             RewardEntry command = pageList.get(slot);
 
             List<Component> lore = new LinkedList<>(List.of(
-                    MineDown.parse("&7" + command.getCommand()),
+                    Colors.itemComponent("&7" + command.getCommand()),
                     Component.empty()
                     ));
 
             if (command instanceof RandomCommandEntry) {
                 RandomCommandEntry randomCommandEntry = (RandomCommandEntry) command;
-                lore.add(MineDown.parse("&7Chance: &#2C74B3&" + randomCommandEntry.getChance()));
+                lore.add(Colors.itemComponent("&7Chance: &#2C74B3&" + randomCommandEntry.getChance()));
                 lore.add(Component.empty());
             }
 
-            lore.add(MineDown.parse("&7Left click to &#DF2E38&delete"));
+            lore.add(Colors.itemComponent("&7Left click to &#DF2E38&delete"));
 
-            if (command instanceof RandomCommandEntry) lore.add(MineDown.parse("&7Right click to change chance"));
+            if (command instanceof RandomCommandEntry) lore.add(Colors.itemComponent("&7Right click to change chance"));
 
             return ItemStackBuilder.create("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWY0YzIxZDE3YWQ2MzYzODdlYTNjNzM2YmZmNmFkZTg5NzMxN2UxMzc0Y2Q1ZDliMWMxNWU2ZTg5NTM0MzIifX19")
-                    .withName(MineDown.parse("&#205295&&lCommand"))
+                    .withName(Colors.itemComponent("&#205295&&lCommand"))
                     .withLore(lore)
                     .build();
 

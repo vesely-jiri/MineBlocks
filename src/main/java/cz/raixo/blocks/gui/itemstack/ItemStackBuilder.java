@@ -2,6 +2,8 @@ package cz.raixo.blocks.gui.itemstack;
 
 import cz.raixo.blocks.gui.Gui;
 import net.kyori.adventure.text.Component;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -22,14 +24,22 @@ public class ItemStackBuilder {
         return new ItemStackBuilder(new ItemStack(material));
     }
 
+    /**
+     * Builds a decorative player head from a base64 texture value.
+     *
+     * <p>Uses the profile API instead of {@code Bukkit.getUnsafe().modifyItemStack}, which is
+     * deprecated and parses raw NBT that no longer matches the item component format.</p>
+     */
     public static ItemStackBuilder create(String headValue) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
-        if (item.getItemMeta() instanceof SkullMeta) {
-            UUID hashAsId = new UUID(headValue.hashCode(), headValue.hashCode());
-            return new ItemStackBuilder(Bukkit.getUnsafe().modifyItemStack(item,
-                    "{SkullOwner:{Id:\"" + hashAsId + "\",Properties:{textures:[{Value:\"" + headValue + "\"}]}}}"
-            ));
-        } else return new ItemStackBuilder(item);
+        if (item.getItemMeta() instanceof SkullMeta skullMeta) {
+            // The uuid only has to be stable and unique per texture; the texture does the work.
+            PlayerProfile profile = Bukkit.createProfile(new UUID(headValue.hashCode(), headValue.hashCode()));
+            profile.setProperty(new ProfileProperty("textures", headValue));
+            skullMeta.setPlayerProfile(profile);
+            item.setItemMeta(skullMeta);
+        }
+        return new ItemStackBuilder(item);
     }
 
     private final ItemStack itemStack;
@@ -41,7 +51,7 @@ public class ItemStackBuilder {
     public ItemStackBuilder withName(Component name) {
         ItemMeta meta = itemStack.getItemMeta();
         assert meta != null;
-        meta.setDisplayName(Gui.COMPONENT_SERIALIZER.serialize(name));
+        meta.displayName(name);
         itemStack.setItemMeta(meta);
         return this;
     }
@@ -53,7 +63,7 @@ public class ItemStackBuilder {
     public ItemStackBuilder withLore(List<Component> lore) {
         ItemMeta meta = itemStack.getItemMeta();
         assert meta != null;
-        meta.setLore(lore.stream().map(Gui.COMPONENT_SERIALIZER::serialize).collect(Collectors.toList()));
+        meta.lore(lore);
         itemStack.setItemMeta(meta);
         return this;
     }
@@ -102,7 +112,7 @@ public class ItemStackBuilder {
     public ItemStackBuilder shiny() {
         return
                 addItemFlags(ItemFlag.HIDE_ENCHANTS)
-                        .withEnchantment(Enchantment.DURABILITY, 1);
+                        .withEnchantment(Enchantment.UNBREAKING, 1);
 
     }
 

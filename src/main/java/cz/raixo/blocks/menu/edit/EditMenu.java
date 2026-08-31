@@ -11,7 +11,7 @@ import cz.raixo.blocks.gui.type.InventoryType;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.edit.items.*;
 import cz.raixo.blocks.menu.general.LearnMoreItem;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -29,7 +29,7 @@ public class EditMenu extends BlockMenu<MapGuiFiller> {
                 " a b c d ",
                 "  e f g  ",
                 " h i j k ",
-                "         ",
+                "   m n   ",
                 "l   r   o"
         ), Component.text(block.getId()), InventoryType.CHEST_6), block);
         MapGuiFiller filler = getFiller();
@@ -57,19 +57,22 @@ public class EditMenu extends BlockMenu<MapGuiFiller> {
         filler.setItem('j', new BreakMessageItem(this));
         filler.setItem('k', new TimeoutItem(this));
 
+        filler.setItem('m', new DisplayNameItem(this));
+        filler.setItem('n', new RewardInfoItem(this));
+
         filler.setItem('l', new LearnMoreItem(filler));
         filler.setItem('r', new GuiItemBuilder<>(filler, (Renderer<Boolean>) (slot, state) -> {
             List<Component> lore = new LinkedList<>(List.of(
                     Component.empty()
             ));
             if (Boolean.TRUE.equals(state)) {
-                lore.add(MineDown.parse("&#db464c&Click again to confirm"));
+                lore.add(Colors.itemComponent("&#db464c&Click again to confirm"));
             } else {
-                lore.add(MineDown.parse("&#db464c&Click to permanently"));
-                lore.add(MineDown.parse("&#db464c&delete this block!"));
+                lore.add(Colors.itemComponent("&#db464c&Click to permanently"));
+                lore.add(Colors.itemComponent("&#db464c&delete this block!"));
             }
             return ItemStackBuilder.create(Material.RED_TERRACOTTA)
-                    .withName(MineDown.parse("&#DF2E38&&lREMOVE BLOCK"))
+                    .withName(Colors.itemComponent("&#DF2E38&&lREMOVE BLOCK"))
                     .withLore(lore)
                     .build();
         })
@@ -84,7 +87,7 @@ public class EditMenu extends BlockMenu<MapGuiFiller> {
                         })
                 .build());
         filler.setItem('o', new GuiItemBuilder<>(filler, ItemStackBuilder.create(Material.BARRIER)
-                .withName(MineDown.parse("&#DF2E38&Close"))
+                .withName(Colors.itemComponent("&#DF2E38&Close"))
                 .build())
                 .withClickHandler(itemClickEvent -> itemClickEvent.getPlayer().closeInventory())
                 .build());

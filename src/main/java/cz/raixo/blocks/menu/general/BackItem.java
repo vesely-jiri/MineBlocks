@@ -5,7 +5,7 @@ import cz.raixo.blocks.gui.filler.GuiFiller;
 import cz.raixo.blocks.gui.item.AbstractItem;
 import cz.raixo.blocks.gui.item.click.ItemClickEvent;
 import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
-import de.themoep.minedown.adventure.MineDown;
+import cz.raixo.blocks.util.color.Colors;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -28,7 +28,7 @@ public class BackItem extends AbstractItem<Void> {
     @Override
     public ItemStack render(Void state) {
         return ItemStackBuilder.create(Material.ARROW)
-                .withName(MineDown.parse("&#DF2E38&Go back"))
+                .withName(Colors.itemComponent("&#DF2E38&Go back"))
                 .build();
     }
 }

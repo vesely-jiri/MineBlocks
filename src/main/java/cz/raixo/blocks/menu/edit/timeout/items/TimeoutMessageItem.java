@@ -7,7 +7,6 @@ import cz.raixo.blocks.gui.itemstack.ItemStackBuilder;
 import cz.raixo.blocks.menu.BlockMenu;
 import cz.raixo.blocks.menu.BlockMenuItem;
 import cz.raixo.blocks.util.color.Colors;
-import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
@@ -59,24 +58,24 @@ public class TimeoutMessageItem extends BlockMenuItem {
         List<Component> lore = new LinkedList<>();
         
         lore.add(Component.empty());
-        lore.add(MineDown.parse("&7Current message:"));
+        lore.add(Colors.itemComponent("&7Current message:"));
         
         String message = state.getCoolDown().getRespawnMessage();
 
         if (message == null || message.isBlank()) {
-            lore.add(MineDown.parse("&#2C74B3& There is no message"));
+            lore.add(Colors.itemComponent("&#2C74B3& There is no message"));
         } else {
             for (String s : message.split("\n")) {
-                lore.add(MineDown.parse("&8- ")
+                lore.add(Colors.itemComponent("&8- ")
                         .append(Component.text(s).color(TextColor.color(44, 116, 179))));
             }
         }
 
         lore.add(Component.empty());
-        lore.add(MineDown.parse("&7Click to change"));
+        lore.add(Colors.itemComponent("&7Click to change"));
         
         return ItemStackBuilder.create(Material.BOOK)
-                .withName(MineDown.parse("&#205295&&lRespawn message"))
+                .withName(Colors.itemComponent("&#205295&&lRespawn message"))
                 .withLore(lore)
                 .build();
     }
