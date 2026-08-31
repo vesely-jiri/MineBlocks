@@ -94,13 +94,20 @@ log_step "Starting the server"
     echo "mb hologram show stone"
     sleep 3
 
+    # With nobody online the world unloads right after startup, and every read of it comes back
+    # empty ("That position is not loaded"). Force load the chunks holding the five blocks first.
+    # This doubles as a test of the chunk-load path: hologram entities are not persisted, so the
+    # ones found below have to have been respawned by the plugin when the chunks came back.
+    echo "forceload add 0 0 40 0"
+    sleep 6
+
     # Vanilla checks of what the plugin did to the world. Each prints its own marker, so the
     # assertions below can tell "it worked" apart from "the command silently did nothing".
     echo "execute if block 0 100 0 minecraft:stone run say CI_BLOCK_PLACED"
     echo "execute if block 40 100 0 minecraft:crying_obsidian run say CI_LAST_BLOCK_PLACED"
     echo "execute if entity @e[type=minecraft:text_display] run say CI_HOLOGRAM_SPAWNED"
     echo "execute if entity @e[type=minecraft:item_display] run say CI_HOLOGRAM_ICON_SPAWNED"
-    sleep 3
+    sleep 4
 
     echo "stop"
     sleep 10
@@ -136,10 +143,11 @@ for block in stone gold color ore mithcoin; do
     echo "  ok: block '${block}' loaded"
 done
 
+require 'to be force loaded' 'the probe chunks were force loaded'
 require 'CI_BLOCK_PLACED' 'the first block was placed in the world'
 require 'CI_LAST_BLOCK_PLACED' 'the last block was placed in the world'
-require 'CI_HOLOGRAM_SPAWNED' 'a text hologram entity was spawned'
-require 'CI_HOLOGRAM_ICON_SPAWNED' 'a hologram icon entity was spawned'
+require 'CI_HOLOGRAM_SPAWNED' 'a text hologram entity was respawned on chunk load'
+require 'CI_HOLOGRAM_ICON_SPAWNED' 'a hologram icon entity was respawned on chunk load'
 require 'List of blocks:' 'the /mb list command answered'
 require 'MineBlocks version' 'the /mb version command answered'
 require 'MineBlocks disabled successfully!' 'the plugin shut down cleanly'
@@ -149,6 +157,8 @@ refuse "Could not load 'plugins" 'the server accepted the plugin jar'
 refuse 'Error occurred while enabling MineBlocks' 'the plugin enabled without errors'
 refuse 'Could not pass event' 'no listener threw'
 refuse 'Unhandled exception|java\.lang\.[A-Za-z]*(Exception|Error)' 'no exception was logged'
-refuse 'Unknown or incomplete command' 'every console command was recognised'
+refuse 'Unknown or incomplete command|Incorrect argument for command' 'every console command was accepted'
+# A silent "not loaded" is how this test previously fooled itself into reading an empty world.
+refuse 'That position is not loaded' 'every probe read a loaded chunk'
 
 log_step "Server test passed"
