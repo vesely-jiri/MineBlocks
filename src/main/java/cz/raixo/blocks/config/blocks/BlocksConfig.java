@@ -49,6 +49,7 @@ public class BlocksConfig {
                 block.setHealth(new BlockHealth(block, blockSection.getInt("health")));
                 block.setPermission(blockSection.getString("permission"));
                 block.setBreakLimit(blockSection.getInt("break-limit", -1));
+                block.setDamageTools(blockSection.getBoolean("damage-tools", false));
                 block.setLocation(getLocation(block, Objects.requireNonNull(blockSection.getConfigurationSection("location"), "Block " + id + " does not have a location set")));
                 block.setHologram(getHologram(block, Objects.requireNonNull(blockSection.getConfigurationSection("hologram"), "Block " + id + " does not have a hologram set")));
 
@@ -355,6 +356,10 @@ public class BlocksConfig {
         setHologram(blockSection.createSection("hologram"), block.getHologram());
         blockSection.set("health", block.getHealth().getMaxHealth());
         if (block.getPermission() != null) blockSection.set("permission", block.getPermission());
+        // Both are read back in getBlocks, so both have to be written here. break-limit used to be
+        // missing, which silently dropped it from the config the first time a block was saved.
+        blockSection.set("break-limit", block.getBreakLimit());
+        blockSection.set("damage-tools", block.isDamageTools());
 
         setCoolDown(blockSection.createSection("timeout"), block.getCoolDown());
         setMessages(blockSection.createSection("messages"), block.getMessages());

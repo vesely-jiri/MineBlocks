@@ -84,6 +84,17 @@ class DefaultConfigTest {
     }
 
     @Test
+    void everyBlockSaysWhetherItWearsToolsDown() {
+        // Spelled out rather than left to the default, so an admin reading config.yml discovers the
+        // option exists. Shipping it off keeps the behaviour every config had before it did.
+        for (String id : TIERS) {
+            ConfigurationSection block = block(id);
+            assertTrue(block.isBoolean("damage-tools"), id + " does not declare damage-tools");
+            assertFalse(block.getBoolean("damage-tools"), id + " wears tools down by default");
+        }
+    }
+
+    @Test
     void everyBlockRewardsRegularlyDuringMining() {
         for (String id : TIERS) {
             ConfigurationSection rewards = Objects.requireNonNull(block(id).getConfigurationSection("rewards"));

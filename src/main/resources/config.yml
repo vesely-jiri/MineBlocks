@@ -69,6 +69,10 @@ blocks:
     health: 250
     permission: "mineblocks.blocks.stone"
     break-limit: 20
+    # A mine block is never really broken, so the server never wears the tool down by itself.
+    # Turn this on to charge 1 durability per counted break. Unbreaking and unbreakable items
+    # behave exactly as they do in vanilla, and creative mode is never charged.
+    damage-tools: false
     hologram:
       offset:
         x: 0
@@ -146,6 +150,10 @@ blocks:
     health: 400
     permission: "mineblocks.blocks.gold"
     break-limit: 20
+    # A mine block is never really broken, so the server never wears the tool down by itself.
+    # Turn this on to charge 1 durability per counted break. Unbreaking and unbreakable items
+    # behave exactly as they do in vanilla, and creative mode is never charged.
+    damage-tools: false
     hologram:
       offset:
         x: 0
@@ -222,6 +230,10 @@ blocks:
     health: 600
     permission: "mineblocks.blocks.color"
     break-limit: 20
+    # A mine block is never really broken, so the server never wears the tool down by itself.
+    # Turn this on to charge 1 durability per counted break. Unbreaking and unbreakable items
+    # behave exactly as they do in vanilla, and creative mode is never charged.
+    damage-tools: false
     hologram:
       offset:
         x: 0
@@ -298,6 +310,10 @@ blocks:
     health: 900
     permission: "mineblocks.blocks.ore"
     break-limit: 20
+    # A mine block is never really broken, so the server never wears the tool down by itself.
+    # Turn this on to charge 1 durability per counted break. Unbreaking and unbreakable items
+    # behave exactly as they do in vanilla, and creative mode is never charged.
+    damage-tools: false
     hologram:
       offset:
         x: 0
@@ -379,6 +395,10 @@ blocks:
     health: 1500
     permission: "mineblocks.blocks.mithcoin"
     break-limit: 20
+    # A mine block is never really broken, so the server never wears the tool down by itself.
+    # Turn this on to charge 1 durability per counted break. Unbreaking and unbreakable items
+    # behave exactly as they do in vanilla, and creative mode is never charged.
+    damage-tools: false
     hologram:
       offset:
         x: 0

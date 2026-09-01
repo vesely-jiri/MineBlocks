@@ -8,10 +8,13 @@ import cz.raixo.blocks.config.options.NotificationType;
 import cz.raixo.blocks.config.options.OptionsConfig;
 import cz.raixo.blocks.util.color.Colors;
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -54,7 +57,27 @@ public class BlocksListener implements Listener {
             return;
         }
 
+        if (block.isDamageTools()) wearDownTool(player);
         block.onBreak(player).run();
+    }
+
+    /**
+     * Wears the held tool down by one point, the way breaking a real block would.
+     *
+     * <p>The break event is cancelled above, so the server never applies durability itself and
+     * tools would otherwise last forever. Going through {@link ItemStack#damage(int, LivingEntity)}
+     * instead of editing the damage value keeps the vanilla behaviour: Unbreaking is rolled,
+     * unbreakable items are left alone, and a tool that runs out breaks with its own sound and
+     * event.</p>
+     */
+    private void wearDownTool(Player player) {
+        // Vanilla never wears a tool down in creative, and an empty hand has nothing to damage.
+        if (player.getGameMode() == GameMode.CREATIVE) return;
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        if (tool.isEmpty()) return;
+        // Documented to possibly return the same instance, and an empty one once the tool broke,
+        // so the result always goes back into the hand.
+        player.getInventory().setItemInMainHand(tool.damage(1, player));
     }
 
     /** Returns the message explaining why the player may not mine, or {@code null} when they may. */

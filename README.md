@@ -94,6 +94,7 @@ blocks:
     health: 400
     permission: "mineblocks.blocks.gold"   # empty means everyone may mine it
     break-limit: 20                 # minimum ms between two counted hits
+    damage-tools: false             # wear the tool down by 1 per break, see Tools below
     timeout:
       time: 600                     # cooldown in seconds
       type: BEDROCK                 # material shown during the cooldown
@@ -129,6 +130,21 @@ blocks:
 Material entries are exact material names or regular expressions. Later entries win, so a broad
 `default: DENIED` can be narrowed by specific allows below it. If `display` is not set,
 `%required_tool%` is generated from the allowed materials.
+
+#### Durability
+
+A mine block is never really broken - the break event is cancelled and the hit is only counted - so
+the server never wears the tool down on its own. Tools last forever unless the block opts in:
+
+```yaml
+    damage-tools: true
+```
+
+Each counted break then costs 1 durability, exactly as breaking a real block would: Unbreaking is
+rolled, unbreakable items are untouched, creative mode is never charged, and a tool that runs out
+breaks with its usual sound. Rejected hits - wrong tool, no permission, cooldown, rate limit - never
+cost anything. Set per block, so an entry-level nexus can stay free while an endgame one eats picks.
+Toggle it in game under `/mb edit <block>` → *Tool requirements* → *Tool durability*.
 
 ### Rewards
 

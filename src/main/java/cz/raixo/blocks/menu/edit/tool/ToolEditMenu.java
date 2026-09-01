@@ -10,6 +10,7 @@ import cz.raixo.blocks.menu.edit.EditMenu;
 import cz.raixo.blocks.menu.edit.tool.items.EnchantmentFilterItem;
 import cz.raixo.blocks.menu.edit.tool.items.MaterialFilterItem;
 import cz.raixo.blocks.menu.edit.tool.items.NameFilterItem;
+import cz.raixo.blocks.menu.edit.tool.items.ToolDurabilityItem;
 import cz.raixo.blocks.menu.general.BackItem;
 import cz.raixo.blocks.menu.general.LearnMoreItem;
 import net.kyori.adventure.text.Component;
@@ -35,7 +36,7 @@ public class ToolEditMenu extends BlockMenu<MapGuiFiller> {
     public ToolEditMenu(MineBlock block) {
         super(new MapGuiFiller(
                 "         ",
-                "  a b c  ",
+                " a b c d ",
                 "h       x"
         ), Component.text(block.getId() + " | Tool requirements"), InventoryType.CHEST_3, block);
 
@@ -44,6 +45,7 @@ public class ToolEditMenu extends BlockMenu<MapGuiFiller> {
         filler.setItem('a', new MaterialFilterItem(this));
         filler.setItem('b', new EnchantmentFilterItem(this));
         filler.setItem('c', new NameFilterItem(this));
+        filler.setItem('d', new ToolDurabilityItem(this));
 
         filler.setItem('h', new LearnMoreItem(filler));
         filler.setItem('x', new BackItem(filler, () -> new EditMenu(getBlock())));

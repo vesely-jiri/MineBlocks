@@ -173,6 +173,18 @@ grep -qF 'CI_PERSISTED_LINE' "$WRITTEN_CONFIG" \
     || fail "an edit made through the plugin was not persisted to config.yml"
 echo "  ok: an edit made in game survives to config.yml"
 
+# Saving a block rewrites its whole section from the loaded object, so every field the loader
+# reads has to be written back or it is lost. break-limit was not, and disappeared from the config
+# the first time an admin touched a block. Only "stone" is edited above, so only its section proves
+# anything - the others still hold the values they were loaded with.
+stone_section() { awk '/^  stone:/{f=1;next} /^  [a-z_-]+:/{f=0} f' "$WRITTEN_CONFIG"; }
+
+for field in break-limit damage-tools; do
+    stone_section | grep -qE "^ +${field}:" \
+        || fail "saving a block dropped '${field}' from its config section"
+    echo "  ok: '${field}' survives a block save"
+done
+
 # Bukkit keeps comments when it rewrites a configuration. If that ever stops being true, every
 # admin loses the documentation in their own config the first time they touch the editor.
 grep -q '^# MineBlocks' "$WRITTEN_CONFIG" \

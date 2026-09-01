@@ -99,6 +99,14 @@ public class MineBlock {
     private RequiredTool requiredTool;
     private BlockTop top = new BlockTop();
     private int breakLimit = 0;
+    /**
+     * Whether mining this block wears the tool down.
+     *
+     * <p>A mine block is never really broken - the break event is cancelled - so the server never
+     * applies durability by itself and tools last forever unless this is on. Off by default, which
+     * is the behaviour every existing config already relies on.</p>
+     */
+    private boolean damageTools = false;
     private Map<UUID, PlayerData> playerDataMap = new HashMap<>();
 
     public String getDisplayName() {
